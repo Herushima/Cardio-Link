@@ -95,7 +95,7 @@ async function signUp(){
 async function out(){await sb.auth.signOut();boot()}
 async function shell(){
   const t=TABS[prof.role];let b={};try{b=await bc()}catch(e){}
-  $('app').innerHTML=`<div class="shell"><aside id="side"><div class="brand">Cardio<i>Link</i></div><nav>${t.map(x=>`<button id="t-${x}" onclick="go('${x}')">${LBL[x]}${b[x]?`<span class="bd">${b[x]}</span>`:''}</button>`).join('')}</nav>
+  $('app').innerHTML=`<div class="shell"><aside id="side"><div class="brand">Cardio<i>Link</i></div><nav>${t.map(x=>`<button id="t-${x}" onclick="nav('${x}')">${LBL[x]}${b[x]?`<span class="bd">${b[x]}</span>`:''}</button>`).join('')}</nav>
   <div class="me"><b>${esc(prof.nama)}</b><span>${ROLE[prof.role]}${prof.faskes?' · '+esc(prof.faskes):''}</span><button class="b g" onclick="out()">Keluar</button></div></aside><main id="view"></main></div>`;
   go(t[0]);
 }
@@ -111,6 +111,7 @@ const done=async(r,t)=>{if(r.error)alert(r.error.message);else go(t||tab)};
 const LS={g:k=>{try{return localStorage.getItem(k)}catch(e){return null}},s:(k,x)=>{try{localStorage.setItem(k,x)}catch(e){}}};
 const ST={baru:['Menunggu respons','w'],dibahas:['Sedang dibahas',''],selesai:['Selesai','ok']};
 let cur=null,flt='semua';
+const nav=x=>{if(x==='kasus')flt='semua';go(x)};
 const isH=()=>['hub',...ADM].includes(prof.role);
 const PH=(t,s,a='')=>`<div class="ph"><div><h1>${t}</h1><p class="mut">${s}</p></div>${a}</div>`;
 const unread=c=>{const s=+(LS.g('s'+c.id)||0),n=(c.case_comments||[]).filter(m=>m.user_id!==me.id&&new Date(m.created_at)>s).length;return n+(c.user_id!==me.id&&!s&&!n?1:0)};
@@ -149,7 +150,7 @@ async beranda(){
   const C=hasK?ck(await sb.from('cases').select('id,user_id,status,case_comments(user_id,created_at)')):[];
   const n=x=>C.filter(c=>c.status===x).length,k=(a,b,c)=>`<div class="card"><span class="mut">${a}</span><b>${b}</b><span class="mut">${c}</span></div>`;
   const kp=sp?k('Kasus saya',C.length,'diajukan ke spesialis')+k('Menunggu respons',n('baru'),'belum dibalas')+k('Balasan baru',C.filter(unread).length,'belum Anda baca'):H?k('Perlu direspons',n('baru'),'kasus baru dari FKTP')+k('Sedang dibahas',n('dibahas'),'diskusi berjalan')+k('Selesai',n('selesai'),'kasus tuntas'):'';
-  const cta=sp?`<button class="b r" onclick="go('kasusBaru')">+ Ajukan kasus pasien</button>`:H?`<button class="b r" onclick="flt='baru';go('kasus')">Lihat kasus menunggu respons</button>`:`<button class="b r" onclick="go('skrining')">Input data skrining</button>`;
+  const cta=sp?`<button class="b r" onclick="go('kasusBaru')">+ Ajukan kasus pasien</button>`:H?`<div>${ADM.includes(prof.role)?`<button class="b g" onclick="go('kasusBaru')">+ Ajukan kasus</button> `:''}<button class="b r" onclick="flt='baru';go('kasus')">Lihat kasus menunggu respons</button></div>`:`<button class="b r" onclick="go('skrining')">Input data skrining</button>`;
   const st=hasK?[['Ajukan','Dokter FKTP mengisi kasus pasien memakai kode/inisial, tanpa nama lengkap atau NIK.'],['Dibalas','Dokter spesialis (Hub) menerima kasus dan membalas di kolom diskusi.'],['Diskusi','FKTP dan Hub berbalas pesan sampai rencana tata laksana jelas.'],['Selesai','Kasus ditandai selesai atau dibahas di sesi telementoring.']]:[['Skrining','Ukur tekanan darah dan tanyakan pola makan di komunitas.'],['Input','Masukkan data pada menu Skrining Komunitas.'],['Terkumpul','Data otomatis masuk ke dashboard.'],['Kebijakan','Data jadi dasar usulan kebijakan hulu.']];
   return PH(`Halo, ${esc(prof.nama)}`,`${ROLE[prof.role]}${prof.faskes?' · '+esc(prof.faskes):''}`,cta)
   +(kp?`<div class="kpi">${kp}</div>`:'')
@@ -158,10 +159,10 @@ async beranda(){
 },
 async kasus(){
   const C=ck(await sb.from('cases').select('*,profiles(nama,faskes),case_comments(user_id,created_at)').order('created_at',{ascending:false}));
-  const f=[['semua','Semua'],['baru','Menunggu respons'],['dibahas','Sedang dibahas'],['selesai','Selesai']],L=C.filter(c=>flt==='semua'||c.status===flt),sp=prof.role==='spoke';
-  return PH('Kasus & Diskusi',sp?'Kasus pasien Anda dan balasan dari spesialis.':'Kasus dari dokter FKTP yang butuh masukan.',sp?`<button class="b r" onclick="go('kasusBaru')">+ Ajukan kasus</button>`:'')
+  const f=[['semua','Semua'],['baru','Menunggu respons'],['dibahas','Sedang dibahas'],['selesai','Selesai']],L=C.filter(c=>flt==='semua'||c.status===flt),sp=prof.role==='spoke',can=['spoke',...ADM].includes(prof.role);
+  return PH('Kasus & Diskusi',sp?'Kasus pasien Anda dan balasan dari spesialis.':'Kasus dari dokter FKTP yang butuh masukan.',can?`<button class="b r" onclick="go('kasusBaru')">+ Ajukan kasus</button>`:'')
   +`<div class="chips">${f.map(([k,l])=>`<button class="${flt===k?'on':''}" onclick="flt='${k}';go('kasus')">${l} (${k==='semua'?C.length:C.filter(c=>c.status===k).length})</button>`).join('')}</div>`
-  +(L.length?L.map(c=>{const u=unread(c),s=ST[c.status]||ST.baru;return `<div class="card case ${c.urgensi==='segera'?'urg':''}" role="button" tabindex="0" onclick="openCase(${c.id})" onkeydown="if(event.key==='Enter')openCase(${c.id})"><div class="ct"><h3>${esc(c.judul)}</h3><span class="tag ${s[1]}">${s[0]}</span>${c.urgensi==='segera'?'<span class="tag w">Segera</span>':''}${u?`<span class="bd">${u} baru</span>`:''}</div><div class="mut">Pasien ${esc(c.kode_pasien||'-')}${c.usia?` · ${c.usia} th`:''}${c.jk?` · ${esc(c.jk)}`:''} · ${esc(c.diagnosis)}</div><div class="mut">${esc(c.profiles?.nama)} · ${esc(c.profiles?.faskes)} · ${fmt(c.created_at)} · ${(c.case_comments||[]).length} balasan</div></div>`}).join(''):`<div class="card empty">${C.length?'Tidak ada kasus pada filter ini.':sp?'Belum ada kasus. Mulai dengan tombol <b>+ Ajukan kasus</b>.':'Belum ada kasus masuk.'}</div>`);
+  +(L.length?L.map(c=>{const u=unread(c),s=ST[c.status]||ST.baru;return `<div class="card case ${c.urgensi==='segera'?'urg':''}" role="button" tabindex="0" onclick="openCase(${c.id})" onkeydown="if(event.key==='Enter')openCase(${c.id})"><div class="ct"><h3>${esc(c.judul)}</h3><span class="tag ${s[1]}">${s[0]}</span>${c.urgensi==='segera'?'<span class="tag w">Segera</span>':''}${u?`<span class="bd">${u} baru</span>`:''}</div><div class="mut">Pasien ${esc(c.kode_pasien||'-')}${c.usia?` · ${c.usia} th`:''}${c.jk?` · ${esc(c.jk)}`:''} · ${esc(c.diagnosis)}</div><div class="mut">${esc(c.profiles?.nama)} · ${esc(c.profiles?.faskes)} · ${fmt(c.created_at)} · ${(c.case_comments||[]).length} balasan</div></div>`}).join(''):`<div class="card empty">${C.length?'Tidak ada kasus pada filter ini.':can?'Belum ada kasus. Mulai dengan tombol <b>+ Ajukan kasus</b>.':'Belum ada kasus masuk.'}</div>`);
 },
 async kasusBaru(){
   return `<button class="b g" onclick="go('kasus')">← Kembali</button>`+PH('Ajukan kasus pasien','Isi ringkas dan jelas agar spesialis mudah merespons.')
