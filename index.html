@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Cardio Link</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<style>
+:root{--bg:#f2f6f8;--card:#fff;--ink:#14232f;--mut:#5b6b78;--line:#d5dfe5;--pri:#0f6e8c;--red:#c8324a;--ok:#1d8a5a;--warn:#b7791f}
+@media(prefers-color-scheme:dark){:root{--bg:#0e1a22;--card:#16252f;--ink:#e8f0f4;--mut:#93a6b3;--line:#2a3c48;--pri:#4cb6d6;--red:#ff6b81;--ok:#4cc590;--warn:#e6b450}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 Figtree,system-ui,sans-serif}
+header{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--card);border-bottom:2px solid var(--red)}
+.logo{font-weight:800;font-size:22px;letter-spacing:-.02em}.logo i{font-style:normal;color:var(--red)}
+nav{display:flex;gap:4px;overflow-x:auto;padding:8px 12px}nav button{background:none;border:0;padding:8px 14px;border-radius:8px;color:var(--mut);font:600 15px Figtree,sans-serif;cursor:pointer;white-space:nowrap}
+nav button.on{background:var(--pri);color:#fff}
+main{max-width:920px;margin:0 auto;padding:12px 16px 48px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin:0 0 12px}
+h2{margin:8px 0 12px;font-size:22px}h3{margin:0 0 4px;font-size:17px}.mut{color:var(--mut);font-size:14px}
+input,select,textarea{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);font:inherit;margin:2px 0 10px}
+label{font-size:14px;font-weight:600}textarea{min-height:70px}
+.row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:0 12px}
+button.b{background:var(--pri);color:#fff;border:0;border-radius:8px;padding:9px 16px;font:600 15px Figtree,sans-serif;cursor:pointer}
+button.b.r{background:var(--red)}button.b.g{background:none;color:var(--pri);border:1px solid var(--pri)}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-visible{outline:3px solid var(--pri);outline-offset:2px}
+.tag{display:inline-block;padding:1px 9px;border-radius:99px;font-size:12px;font-weight:600;background:var(--bg);border:1px solid var(--line)}
+.tag.ok{color:var(--ok);border-color:var(--ok)}.tag.w{color:var(--warn);border-color:var(--warn)}
+.kpi{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}.kpi .card{margin:0;border-left:5px solid var(--pri)}
+.kpi b{font-size:30px;display:block;line-height:1.1}.kpi .card:nth-child(2n){border-left-color:var(--red)}
+.cm{border-left:3px solid var(--line);padding:2px 10px;margin:8px 0}.cm.hub{border-color:var(--pri)}
+details{margin:0 0 10px}summary{cursor:pointer;font-weight:600}ol,ul{margin:6px 0;padding-left:22px}
+.auth{max-width:420px;margin:6vh auto;padding:0 16px}#msg{min-height:22px;font-size:14px;color:var(--red)}
+</style></head><body><div id="app"></div>
+<script>
+/* === ISI DENGAN DATA PROYEK SUPABASE ANDA (Settings > API) === */
+const SUPABASE_URL='https://XXXX.supabase.co', SUPABASE_KEY='ISI_ANON_PUBLIC_KEY';
+/* ============================================================== */
+const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+let me,prof,tab;
+const $=i=>document.getElementById(i), v=i=>$(i).value.trim(), A=$=>$;
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt=d=>new Date(d).toLocaleString('id-ID',{dateStyle:'medium',timeStyle:'short'});
+const ROLE={superadmin:'Super Admin',koordinator:'Koordinator',hub:'Dokter Spesialis',spoke:'Dokter FKTP',komunitas:'Mitra Komunitas',stakeholder:'Pemangku Kepentingan'};
+const ADMT=['pengguna','mentoring','kasus','algoritma','dashboard'];
+const TABS={superadmin:ADMT,koordinator:ADMT,hub:['mentoring','kasus','algoritma','dashboard'],spoke:['mentoring','kasus','algoritma','skrining'],komunitas:['mentoring','skrining'],stakeholder:['dashboard','mentoring']};
+const LBL={pengguna:'Pengguna & Akses',mentoring:'Telementoring & SKP',kasus:'Studi Kasus PRB',algoritma:'Algoritma Klinis',skrining:'Skrining Komunitas',dashboard:'Dashboard JATRA'};
+const STAT={approved:'Aktif',pending:'Menunggu',rejected:'Nonaktif'};
+const ADM=['superadmin','koordinator'],EM=u=>u.toLowerCase()+'@cardiolink.app',UN=/^[a-z0-9._-]{3,30}$/i;
+const msg=t=>{const m=$('msg');if(m)m.textContent=t||''};
+
+async function boot(){
+  const{data:{session}}=await sb.auth.getSession();
+  if(!session)return authView();
+  me=session.user;
+  const{data:p}=await sb.from('profiles').select('*').eq('id',me.id).maybeSingle();
+  if(!p)return waitView('Profil belum ditemukan. Pastikan skema SQL dan migrasi v2 sudah dijalankan.');
+  prof=p;
+  if(p.status==='pending')return waitView('Pendaftaran Anda sudah terkirim ke Super Admin dan menunggu persetujuan. Silakan masuk lagi setelah disetujui.');
+  if(p.status==='rejected')return waitView('Akses akun ini tidak aktif. Hubungi Super Admin.');
+  shell();
+}
+function waitView(t){$('app').innerHTML=`<div class="auth"><div class="logo" style="font-size:34px">Cardio<i>Link</i></div><div class="card" style="margin-top:20px"><h3>Akses belum aktif</h3><p>${t}</p><button class="b" onclick="out()">Keluar</button> <button class="b g" onclick="boot()">Cek lagi</button></div></div>`}
+function authView(){
+  $('app').innerHTML=`<div class="auth"><div class="logo" style="font-size:34px">Cardio<i>Link</i></div>
+  <p class="mut">Jejaring telementoring jantung dan pembuluh darah Jawa Timur — Hub, Puskesmas, dan komunitas dalam satu tempat.</p>
+  <div class="card"><label>Username</label><input id="un" autocomplete="username" autocapitalize="none"><label>Kata sandi</label><input id="pw" type="password" autocomplete="current-password">
+  <p id="msg"></p><button class="b" onclick="signIn()">Masuk</button></div>
+  <div class="card"><details><summary>Daftar akun baru</summary><div style="margin-top:10px"><label>Nama Dokter</label><input id="rn"><label>Nama User (username, huruf/angka/titik/strip, min. 3)</label><input id="ru" autocapitalize="none"><label>Password (min. 6 karakter)</label><input id="rp" type="password" autocomplete="new-password"><label>Nama Faskes</label><input id="rf">
+  <p id="msg2" class="mut"></p><button class="b g" onclick="signUp()">Kirim pendaftaran</button><p class="mut">Pendaftaran perlu disetujui Super Admin sebelum Anda bisa masuk.</p></div></details></div></div>`;
+}
+async function signIn(){
+  if(!UN.test(v('un')))return msg('Username tidak valid.');
+  const{error}=await sb.auth.signInWithPassword({email:EM(v('un')),password:$('pw').value});
+  error?msg(/invalid/i.test(error.message)?'Username atau kata sandi salah.':error.message):boot();
+}
+async function signUp(){
+  const m=t=>$('msg2').textContent=t;
+  if(!v('rn')||!v('rf'))return m('Isi nama dokter dan nama faskes.');
+  if(!UN.test(v('ru')))return m('Username tidak valid.');
+  if($('rp').value.length<6)return m('Password minimal 6 karakter.');
+  const{error}=await sb.auth.signUp({email:EM(v('ru')),password:$('rp').value,options:{data:{nama:v('rn'),username:v('ru').toLowerCase(),faskes:v('rf')}}});
+  if(error)return m(/registered/i.test(error.message)?'Username sudah dipakai.':error.message);
+  await sb.auth.signOut();authView();msg('Pendaftaran terkirim ke Super Admin. Tunggu persetujuan sebelum masuk.');
+}
+async function out(){await sb.auth.signOut();boot()}
+async function shell(){
+  const t=TABS[prof.role];let n=0;
+  if(ADM.includes(prof.role))n=(await sb.from('profiles').select('id',{count:'exact',head:true}).eq('status','pending')).count||0;
+  $('app').innerHTML=`<header><div class="logo">Cardio<i>Link</i></div><div class="mut">${esc(prof.nama)} · <span class="tag">${ROLE[prof.role]}</span> <button class="b g" onclick="out()">Keluar</button></div></header>
+  <nav>${t.map(x=>`<button id="t-${x}" onclick="go('${x}')">${LBL[x]}${x==='pengguna'&&n?` (${n} baru)`:''}</button>`).join('')}</nav><main id="view"></main>`;
+  go(t[0]);
+}
+async function go(t){
+  tab=t;document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.id==='t-'+t));
+  $('view').innerHTML='<p class="mut">Memuat…</p>';
+  try{$('view').innerHTML=await VIEWS[t]()}catch(e){$('view').innerHTML=`<div class="card">Gagal memuat: ${esc(e.message)}</div>`}
+}
+const ck=r=>{if(r.error)throw r.error;return r.data};
+const done=async(r,t)=>{if(r.error)alert(r.error.message);else go(t||tab)};
+
+const VIEWS={
+async pengguna(){
+  const P=ck(await sb.from('profiles').select('*').order('created_at',{ascending:false}));
+  const sa=prof.role==='superadmin',opts=Object.keys(ROLE).filter(r=>sa||r!=='superadmin');
+  const row=p=>{
+    const lock=p.id===me.id||(p.role==='superadmin'&&!sa);
+    const sel=`<select id="r${p.id}">${opts.map(r=>`<option value="${r}" ${r===p.role?'selected':''}>${ROLE[r]}</option>`).join('')}</select>`;
+    const act=p.status==='approved'?`<button class="b" onclick="setUser('${p.id}','approved')">Simpan peran</button> <button class="b r" onclick="setUser('${p.id}','rejected')">Cabut akses</button>`
+      :`<button class="b" onclick="setUser('${p.id}','approved')">Setujui</button> ${p.status==='pending'?`<button class="b r" onclick="setUser('${p.id}','rejected')">Tolak</button>`:''}`;
+    return `<div class="card"><h3>${esc(p.nama)} <span class="tag ${p.status==='approved'?'ok':'w'}">${STAT[p.status]}</span></h3><div class="mut">${esc(p.username)} · ${esc(p.faskes)} · ${fmt(p.created_at)}</div>${lock?`<p class="mut">${ROLE[p.role]}</p>`:`<label>Hak akses</label>${sel}${act}`}</div>`;
+  };
+  const pend=P.filter(p=>p.status==='pending'),rest=P.filter(p=>p.status!=='pending');
+  return `<h2>Pengguna & Akses</h2><h3>Menunggu persetujuan (${pend.length})</h3>`+(pend.map(row).join('')||'<div class="card">Tidak ada pendaftaran baru.</div>')+`<h3>Semua pengguna</h3>`+rest.map(row).join('');
+},
+async mentoring(){
+  const S=ck(await sb.from('sessions').select('*').order('waktu',{ascending:false}));
+  const H=new Set(ck(await sb.from('attendance').select('session_id').eq('user_id',me.id)).map(x=>x.session_id));
+  const tot=S.filter(s=>H.has(s.id)).reduce((a,s)=>a+Number(s.skp||0),0);
+  let h=`<h2>Telementoring & SKP</h2><div class="card"><b>${tot}</b> SKP terkumpul dari ${H.size} sesi yang Anda hadiri.</div>`;
+  if(['hub',...ADM].includes(prof.role))h+=`<div class="card"><h3>Jadwalkan sesi baru</h3><div class="row"><div><label>Judul</label><input id="sj"></div><div><label>Waktu</label><input id="sw" type="datetime-local"></div><div><label>Tautan Zoom/Meet</label><input id="sl" placeholder="https://"></div><div><label>SKP</label><input id="sk" type="number" step="0.5" value="1"></div></div><label>Topik / studi kasus</label><input id="st"><button class="b" onclick="addSession()">Simpan sesi</button></div>`;
+  h+=S.length?S.map(s=>`<div class="card"><h3>${esc(s.judul)}</h3><div class="mut">${fmt(s.waktu)} · ${s.skp} SKP</div><p>${esc(s.topik)}</p>
+   ${s.link&&/^https?:\/\//.test(s.link)?`<a href="${esc(s.link)}" target="_blank" rel="noopener"><button class="b g">Gabung sesi</button></a> `:''}
+   ${H.has(s.id)?'<span class="tag ok">Hadir tercatat</span>':`<button class="b" onclick="hadir(${s.id})">Catat kehadiran</button>`}</div>`).join(''):'<div class="card">Belum ada sesi. Hub dapat menjadwalkan sesi pertama.</div>';
+  return h;
+},
+async kasus(){
+  const C=ck(await sb.from('cases').select('*,profiles(nama,faskes),case_comments(*,profiles(nama,role))').order('created_at',{ascending:false}));
+  let h='<h2>Studi Kasus PRB</h2>';
+  if(prof.role==='spoke')h+=`<div class="card"><h3>Ajukan kasus (tanpa identitas pasien)</h3><label>Judul kasus</label><input id="kj"><div class="row"><div><label>Usia</label><input id="ku" type="number"></div><div><label>Diagnosis</label><input id="kd" placeholder="mis. PJK stabil, 3VD"></div></div><label>Ringkasan klinis</label><textarea id="kr"></textarea><label>Kendala yang dihadapi</label><input id="kk" placeholder="mis. ketersediaan statin, ragu titrasi"><label><input type="checkbox" id="ko" style="width:auto"> Kasus ini cenderung dirujuk berulang (over-referral)</label><br><button class="b" onclick="addCase()">Kirim ke Hub</button></div>`;
+  return h+(C.length?C.map(c=>`<div class="card"><h3>${esc(c.judul)}</h3><div class="mut">${esc(c.profiles?.nama)} · ${esc(c.profiles?.faskes)} · ${fmt(c.created_at)} ${c.over_referral?'<span class="tag w">over-referral</span>':''}</div>
+   <p><b>${esc(c.diagnosis)}</b>${c.usia?`, ${c.usia} th`:''}<br>${esc(c.ringkasan)}</p>${c.kendala?`<p class="mut">Kendala: ${esc(c.kendala)}</p>`:''}
+   ${(c.case_comments||[]).sort((a,b)=>a.id-b.id).map(m=>`<div class="cm ${m.profiles?.role}"><b>${esc(m.profiles?.nama)}</b> <span class="mut">${fmt(m.created_at)}</span><br>${esc(m.isi)}</div>`).join('')}
+   ${['hub','spoke',...ADM].includes(prof.role)?`<input id="cm${c.id}" placeholder="Tulis masukan atau pertanyaan"><button class="b g" onclick="addComment(${c.id})">Kirim</button>`:''}</div>`).join(''):'<div class="card">Belum ada kasus.</div>');
+},
+async algoritma(){
+  const D=[['Titrasi antihipertensi kombinasi',['Konfirmasi diagnosis dan kepatuhan minum obat; ukur TD dengan benar.','Mulai ACEi/ARB atau CCB; naikkan dosis bertahap tiap 2–4 minggu.','Belum terkontrol: kombinasikan ACEi/ARB + CCB, lalu tambah tiazid.','Cek kreatinin dan kalium 1–2 minggu setelah memulai atau menaikkan ACEi/ARB.','Rujuk bila TD resisten, ada kerusakan organ target, atau gangguan ginjal bermakna.']],
+  ['Evaluasi dasar gagal jantung',['Nilai gejala (kelas NYHA), berat badan, edema, TD, nadi, saturasi.','Tanda memburuk: berat naik cepat, sesak bertambah, ortopnea → pertimbangkan rujuk.','Pastikan terapi dasar berjalan (ACEi/ARB, penyekat beta, MRA, SGLT2i) sesuai toleransi.','Pantau fungsi ginjal dan kalium; edukasi pembatasan garam dan cairan.']],
+  ['Pembacaan EKG pasca-tindakan',['Bandingkan dengan EKG sebelumnya: laju, irama, interval, segmen ST, gelombang T.','Perubahan baru dan keluhan nyeri dada → konsultasikan segera ke Hub.','Dokumentasikan dan kirim gambar EKG sebagai kasus.']],
+  ['Nyeri dada pada PJK stabil',['Nilai ciri nyeri: pencetus, lama, respons istirahat/nitrat.','Nyeri tidak khas dan pola tetap: evaluasi penyebab non-kardiak sebelum merujuk.','Pola berubah, nyeri istirahat, atau memberat → rujuk segera.','Lanjutkan statin dan antiplatelet sesuai program.']],
+  ['Rehabilitasi kardiovaskular',['Skrining kontraindikasi dan stabilitas klinis.','Latihan aerobik intensitas sedang bertahap, sasaran 30 menit, 3–5 kali/minggu.','Hentikan latihan bila nyeri dada, sesak berat, atau pusing.','Kombinasikan dengan nutrisi, berhenti merokok, dan dukungan psikososial.']]];
+  return `<h2>Algoritma Klinis PRB Kardio</h2><p class="mut">Ringkasan edukatif untuk diskusi kasus. Selalu rujuk PPK PERKI/Kemenkes dan masukan Hub; bukan pengganti penilaian klinis.</p>`+D.map(([t,s])=>`<div class="card"><details><summary>${t}</summary><ol>${s.map(x=>`<li>${x}</li>`).join('')}</ol></details></div>`).join('');
+},
+async skrining(){
+  const R=ck(await sb.from('screenings').select('*').eq('user_id',me.id).order('created_at',{ascending:false}).limit(30));
+  return `<h2>Skrining Komunitas</h2><div class="card"><div class="row"><div><label>Wilayah (desa/sekolah)</label><input id="gw"></div><div><label>Usia</label><input id="gu" type="number"></div><div><label>Sistol</label><input id="gs" type="number"></div><div><label>Diastol</label><input id="gd" type="number"></div></div>
+  <div class="row"><div><label>Konsumsi gula</label><select id="gg"><option>rendah</option><option>sedang</option><option>tinggi</option></select></div><div><label>Konsumsi garam</label><select id="gh"><option>rendah</option><option>sedang</option><option>tinggi</option></select></div><div><label>Kepatuhan minum obat</label><select id="gp"><option>tidak berlaku</option><option>patuh</option><option>kadang lupa</option><option>tidak patuh</option></select></div></div>
+  <label><input type="checkbox" id="gm" style="width:auto"> Merokok</label><br><button class="b" onclick="addScreen()">Simpan data skrining</button></div>
+  <h3>Data terakhir Anda</h3>`+(R.length?R.map(r=>`<div class="card mut">${fmt(r.created_at)} · ${esc(r.wilayah)} · ${r.usia} th · TD ${r.sistol}/${r.diastol} ${(r.sistol>=140||r.diastol>=90)?'<span class="tag w">tinggi</span>':''}</div>`).join(''):'<div class="card">Belum ada data.</div>');
+},
+async dashboard(){
+  const[S,At,C,G,P]=await Promise.all(['sessions','attendance','cases','screenings','profiles'].map(t=>sb.from(t).select(t==='cases'?'*,case_comments(profiles(role))':'*').then(ck)));
+  const pc=(a,b)=>b?Math.round(100*a/b)+'%':'–',now=Date.now(),d30=now-30*864e5;
+  const peserta=P.filter(p=>p.status==='approved'&&!['stakeholder','superadmin','koordinator'].includes(p.role)),faskes=new Set(peserta.map(p=>p.faskes).filter(Boolean));
+  const dijawab=C.filter(c=>(c.case_comments||[]).some(m=>m.profiles?.role==='hub')).length;
+  const tinggi=G.filter(g=>g.sistol>=140||g.diastol>=90).length;
+  const baru=peserta.filter(p=>new Date(p.created_at)>d30),fbaru=new Set(baru.map(p=>p.faskes).filter(Boolean));
+  const sesiHadir=new Set(At.map(a=>a.session_id)).size,wk=d=>Math.floor(new Date(d)/6048e5);
+  const mg=new Set(S.filter(s=>new Date(s.waktu)<=now&&new Date(s.waktu)>now-56*864e5).map(s=>wk(s.waktu))).size;
+  const over=C.filter(c=>c.over_referral).length;
+  const k=(t,n,d)=>`<div class="card"><span class="mut">${t}</span><b>${n}</b><span class="mut">${d}</span></div>`;
+  return `<h2>Dashboard JATRA & CFIR</h2><div class="kpi">
+  ${k('J — Jangkauan',peserta.length,`peserta, ${faskes.size} faskes, ${G.length} skrining`)}
+  ${k('A — Ampuh',pc(dijawab,C.length),`kasus dijawab Hub · ${pc(tinggi,G.length)} skrining hipertensi`)}
+  ${k('T — Tumbuh',baru.length,`peserta baru 30 hari, ${fbaru.size} faskes baru`)}
+  ${k('R — Realisasi',pc(sesiHadir,S.length),`sesi dihadiri · ${S.length?(At.length/S.length).toFixed(1):0} hadir/sesi`)}
+  ${k('A — Awet',mg+'/8',`minggu terakhir yang punya sesi`)}</div>
+  <h2 style="margin-top:20px">Indikator CFIR</h2><div class="card"><b>${pc(over,C.length)}</b> kasus ditandai berisiko over-referral (${over} dari ${C.length}).</div>
+  <div class="card"><h3>Hambatan implementasi yang dilaporkan</h3>${C.filter(c=>c.kendala).slice(0,8).map(c=>`<div class="cm">${esc(c.kendala)}</div>`).join('')||'<span class="mut">Belum ada laporan hambatan.</span>'}</div>
+  <p class="mut">Total SKP diberikan: ${At.reduce((a,x)=>a+Number(S.find(s=>s.id===x.session_id)?.skp||0),0)}.</p>`;
+}};
+
+const addSession=async()=>{if(!v('sj')||!v('sw'))return alert('Isi judul dan waktu.');done(await sb.from('sessions').insert({judul:v('sj'),waktu:new Date(v('sw')).toISOString(),link:v('sl'),skp:+v('sk')||0,topik:v('st')}))};
+const hadir=async id=>done(await sb.from('attendance').insert({session_id:id}));
+const addCase=async()=>{if(!v('kj'))return alert('Isi judul kasus.');done(await sb.from('cases').insert({judul:v('kj'),usia:+v('ku')||null,diagnosis:v('kd'),ringkasan:v('kr'),kendala:v('kk'),over_referral:$('ko').checked}))};
+const addComment=async id=>{if(!v('cm'+id))return;done(await sb.from('case_comments').insert({case_id:id,isi:v('cm'+id)}))};
+const addScreen=async()=>{if(!v('gs')||!v('gd'))return alert('Isi tekanan darah.');done(await sb.from('screenings').insert({wilayah:v('gw'),usia:+v('gu')||null,sistol:+v('gs'),diastol:+v('gd'),merokok:$('gm').checked,gula:v('gg'),garam:v('gh'),patuh_obat:v('gp')}))};
+const setUser=async(id,st)=>{const el=$('r'+id),u={status:st};if(el)u.role=el.value;done(await sb.from('profiles').update(u).eq('id',id))};
+boot();
+</script></body></html>
