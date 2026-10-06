@@ -4,29 +4,42 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <style>
-:root{--bg:#f2f6f8;--card:#fff;--ink:#14232f;--mut:#5b6b78;--line:#d5dfe5;--pri:#0f6e8c;--red:#c8324a;--ok:#1d8a5a;--warn:#b7791f}
-@media(prefers-color-scheme:dark){:root{--bg:#0e1a22;--card:#16252f;--ink:#e8f0f4;--mut:#93a6b3;--line:#2a3c48;--pri:#4cb6d6;--red:#ff6b81;--ok:#4cc590;--warn:#e6b450}}
+:root{--bg:#f3f6fa;--card:#fff;--ink:#10243a;--mut:#5d6f82;--line:#dde5ee;--pri:#0b6e8f;--red:#d6334f;--ok:#14865a;--warn:#b7791f;--side:#0b2238}
+@media(prefers-color-scheme:dark){:root{--bg:#0b1620;--card:#12212e;--ink:#e6eef5;--mut:#8fa3b5;--line:#223646;--pri:#45b4d6;--red:#ff6f86;--ok:#4cc590;--warn:#e6b450;--side:#08131c}}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 Figtree,system-ui,sans-serif}
-header{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--card);border-bottom:2px solid var(--red)}
-.logo{font-weight:800;font-size:22px;letter-spacing:-.02em}.logo i{font-style:normal;color:var(--red)}
-nav{display:flex;gap:4px;overflow-x:auto;padding:8px 12px}nav button{background:none;border:0;padding:8px 14px;border-radius:8px;color:var(--mut);font:600 15px Figtree,sans-serif;cursor:pointer;white-space:nowrap}
-nav button.on{background:var(--pri);color:#fff}
-main{max-width:920px;margin:0 auto;padding:12px 16px 48px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin:0 0 12px}
+.shell{display:grid;grid-template-columns:250px 1fr;min-height:100vh}
+#side{background:var(--side);color:#c9dbe9;padding:20px 14px;display:flex;flex-direction:column;gap:18px;position:sticky;top:0;height:100vh}
+.brand,.logo{font-weight:800;font-size:26px;letter-spacing:-.02em}.brand{color:#fff;padding:0 8px}.brand i,.logo i{font-style:normal;color:#ff6f86}
+#side nav{display:flex;flex-direction:column;gap:2px;flex:1;overflow:auto}
+#side nav button{display:flex;justify-content:space-between;align-items:center;gap:8px;text-align:left;background:none;border:0;border-left:3px solid transparent;color:#a9c0d3;padding:10px 12px;border-radius:0 8px 8px 0;font:600 15px Figtree,sans-serif;cursor:pointer}
+#side nav button:hover{background:#ffffff12}#side nav button.on{background:#ffffff1c;color:#fff;border-left-color:#ff6f86}
+.bd{background:var(--red);color:#fff;border-radius:99px;font-size:12px;font-weight:700;padding:0 8px;min-width:20px;text-align:center}
+.me{border-top:1px solid #ffffff22;padding:14px 8px 0;font-size:14px;display:flex;flex-direction:column;gap:4px}.me span{color:#8ea8bd}.me .b{margin-top:8px;color:#fff;border-color:#ffffff55}
+#view{padding:28px clamp(16px,4vw,48px) 64px;max-width:1040px;width:100%}
+.ph{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;margin:14px 0 18px}.ph h1{margin:0;font-size:26px;letter-spacing:-.01em}.ph p{margin:2px 0 0}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:0 0 12px;box-shadow:0 1px 2px #10243a0f}
 h2{margin:8px 0 12px;font-size:22px}h3{margin:0 0 4px;font-size:17px}.mut{color:var(--mut);font-size:14px}
-input,select,textarea{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);font:inherit;margin:2px 0 10px}
-label{font-size:14px;font-weight:600}textarea{min-height:70px}
-.row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:0 12px}
-button.b{background:var(--pri);color:#fff;border:0;border-radius:8px;padding:9px 16px;font:600 15px Figtree,sans-serif;cursor:pointer}
+input,select,textarea{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);font:inherit;margin:3px 0 12px}
+label{font-size:14px;font-weight:600}textarea{min-height:84px}.chk{display:flex;gap:8px;align-items:center}.chk input{width:auto;margin:0}
+.row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:0 14px}
+button.b{background:var(--pri);color:#fff;border:0;border-radius:8px;padding:10px 18px;font:600 15px Figtree,sans-serif;cursor:pointer}
 button.b.r{background:var(--red)}button.b.g{background:none;color:var(--pri);border:1px solid var(--pri)}
-button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-visible{outline:3px solid var(--pri);outline-offset:2px}
-.tag{display:inline-block;padding:1px 9px;border-radius:99px;font-size:12px;font-weight:600;background:var(--bg);border:1px solid var(--line)}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-visible,.case:focus-visible{outline:3px solid var(--pri);outline-offset:2px}
+.tag{display:inline-block;padding:1px 10px;border-radius:99px;font-size:12px;font-weight:600;background:var(--bg);border:1px solid var(--line)}
 .tag.ok{color:var(--ok);border-color:var(--ok)}.tag.w{color:var(--warn);border-color:var(--warn)}
-.kpi{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}.kpi .card{margin:0;border-left:5px solid var(--pri)}
+.kpi{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:12px}.kpi .card{margin:0;border-left:5px solid var(--pri)}
 .kpi b{font-size:30px;display:block;line-height:1.1}.kpi .card:nth-child(2n){border-left-color:var(--red)}
-.cm{border-left:3px solid var(--line);padding:2px 10px;margin:8px 0}.cm.hub{border-color:var(--pri)}
+.cm{border-left:3px solid var(--line);padding:2px 10px;margin:8px 0}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}.chips button{background:var(--card);border:1px solid var(--line);color:var(--mut);border-radius:99px;padding:6px 14px;font:600 14px Figtree,sans-serif;cursor:pointer}.chips button.on{background:var(--pri);border-color:var(--pri);color:#fff}
+.case{cursor:pointer;border-left:4px solid var(--line)}.case:hover{border-color:var(--pri)}.case.urg{border-left-color:var(--red)}.ct{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin-bottom:12px}
+.q,.note{border-radius:8px;padding:10px 14px;margin:10px 0;background:color-mix(in srgb,var(--pri) 10%,var(--card));border-left:4px solid var(--pri)}.note{background:color-mix(in srgb,var(--warn) 12%,var(--card));border-color:var(--warn);font-size:14px}
+.thread{display:flex;flex-direction:column;gap:10px;margin:8px 0 14px}.bub{max-width:82%;background:var(--card);border:1px solid var(--line);border-radius:4px 14px 14px 14px;padding:10px 14px}.bub.me{align-self:flex-end;border-radius:14px 4px 14px 14px;background:color-mix(in srgb,var(--pri) 13%,var(--card))}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px}.steps div{padding-left:42px;position:relative;font-size:14px}.steps b{display:block;font-size:15px}.steps i{position:absolute;left:0;top:0;width:30px;height:30px;border-radius:50%;background:var(--red);color:#fff;font-style:normal;font-weight:700;display:grid;place-items:center}
+.empty{text-align:center;color:var(--mut);padding:28px}
 details{margin:0 0 10px}summary{cursor:pointer;font-weight:600}ol,ul{margin:6px 0;padding-left:22px}
-.auth{max-width:420px;margin:6vh auto;padding:0 16px}#msg{min-height:22px;font-size:14px;color:var(--red)}
+.auth{max-width:440px;margin:7vh auto;padding:0 16px}.auth .logo{font-size:36px}#msg{min-height:22px;font-size:14px;color:var(--red)}
+@media(max-width:820px){.shell{grid-template-columns:1fr}#side{position:static;height:auto;padding:12px;gap:8px}#side nav{flex-direction:row;overflow-x:auto;flex:none}#side nav button{white-space:nowrap;border-left:0;border-bottom:3px solid transparent;border-radius:8px 8px 0 0}#side nav button.on{border-bottom-color:#ff6f86}.me{flex-direction:row;align-items:center;flex-wrap:wrap;border:0;padding:0 8px}.me .b{margin:0 0 0 auto}.bub{max-width:94%}}
 </style></head><body><div id="app"></div>
 <script>
 /* === ISI DENGAN DATA PROYEK SUPABASE ANDA (Settings > API) === */
@@ -38,9 +51,9 @@ const $=i=>document.getElementById(i), v=i=>$(i).value.trim(), A=$=>$;
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fmt=d=>new Date(d).toLocaleString('id-ID',{dateStyle:'medium',timeStyle:'short'});
 const ROLE={superadmin:'Super Admin',koordinator:'Koordinator',hub:'Dokter Spesialis',spoke:'Dokter FKTP',komunitas:'Mitra Komunitas',stakeholder:'Pemangku Kepentingan'};
-const ADMT=['pengguna','mentoring','kasus','algoritma','dashboard'];
-const TABS={superadmin:ADMT,koordinator:ADMT,hub:['mentoring','kasus','algoritma','dashboard'],spoke:['mentoring','kasus','algoritma','skrining'],komunitas:['mentoring','skrining'],stakeholder:['dashboard','mentoring']};
-const LBL={pengguna:'Pengguna & Akses',mentoring:'Telementoring & SKP',kasus:'Studi Kasus PRB',algoritma:'Algoritma Klinis',skrining:'Skrining Komunitas',dashboard:'Dashboard JATRA'};
+const ADMT=['beranda','pengguna','kasus','mentoring','algoritma','dashboard'];
+const TABS={superadmin:ADMT,koordinator:ADMT,hub:['beranda','kasus','mentoring','algoritma','dashboard'],spoke:['beranda','kasus','mentoring','algoritma','skrining'],komunitas:['beranda','skrining','mentoring'],stakeholder:['dashboard','mentoring']};
+const LBL={beranda:'Beranda',pengguna:'Pengguna & Akses',kasus:'Kasus & Diskusi',mentoring:'Telementoring & SKP',algoritma:'Panduan Klinis',skrining:'Skrining Komunitas',dashboard:'Dashboard JATRA'};
 const STAT={approved:'Aktif',pending:'Menunggu',rejected:'Nonaktif'};
 const ADM=['superadmin','koordinator'],EM=u=>u.toLowerCase()+'@cardiolink.app',UN=/^[a-z0-9._-]{3,30}$/i;
 const msg=t=>{const m=$('msg');if(m)m.textContent=t||''};
@@ -81,20 +94,30 @@ async function signUp(){
 }
 async function out(){await sb.auth.signOut();boot()}
 async function shell(){
-  const t=TABS[prof.role];let n=0;
-  if(ADM.includes(prof.role))n=(await sb.from('profiles').select('id',{count:'exact',head:true}).eq('status','pending')).count||0;
-  $('app').innerHTML=`<header><div class="logo">Cardio<i>Link</i></div><div class="mut">${esc(prof.nama)} · <span class="tag">${ROLE[prof.role]}</span> <button class="b g" onclick="out()">Keluar</button></div></header>
-  <nav>${t.map(x=>`<button id="t-${x}" onclick="go('${x}')">${LBL[x]}${x==='pengguna'&&n?` (${n} baru)`:''}</button>`).join('')}</nav><main id="view"></main>`;
+  const t=TABS[prof.role];let b={};try{b=await bc()}catch(e){}
+  $('app').innerHTML=`<div class="shell"><aside id="side"><div class="brand">Cardio<i>Link</i></div><nav>${t.map(x=>`<button id="t-${x}" onclick="go('${x}')">${LBL[x]}${b[x]?`<span class="bd">${b[x]}</span>`:''}</button>`).join('')}</nav>
+  <div class="me"><b>${esc(prof.nama)}</b><span>${ROLE[prof.role]}${prof.faskes?' · '+esc(prof.faskes):''}</span><button class="b g" onclick="out()">Keluar</button></div></aside><main id="view"></main></div>`;
   go(t[0]);
 }
 async function go(t){
-  tab=t;document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.id==='t-'+t));
-  $('view').innerHTML='<p class="mut">Memuat…</p>';
+  tab=t;const nk={kasusBaru:'kasus',kasusDetail:'kasus'}[t]||t;
+  document.querySelectorAll('#side nav button').forEach(x=>x.classList.toggle('on',x.id==='t-'+nk));
+  $('view').innerHTML='<p class="mut">Memuat…</p>';scrollTo(0,0);
   try{$('view').innerHTML=await VIEWS[t]()}catch(e){$('view').innerHTML=`<div class="card">Gagal memuat: ${esc(e.message)}</div>`}
 }
 const ck=r=>{if(r.error)throw r.error;return r.data};
 const done=async(r,t)=>{if(r.error)alert(r.error.message);else go(t||tab)};
 
+const LS={g:k=>{try{return localStorage.getItem(k)}catch(e){return null}},s:(k,x)=>{try{localStorage.setItem(k,x)}catch(e){}}};
+const ST={baru:['Menunggu respons','w'],dibahas:['Sedang dibahas',''],selesai:['Selesai','ok']};
+let cur=null,flt='semua';
+const isH=()=>['hub',...ADM].includes(prof.role);
+const PH=(t,s,a='')=>`<div class="ph"><div><h1>${t}</h1><p class="mut">${s}</p></div>${a}</div>`;
+const unread=c=>{const s=+(LS.g('s'+c.id)||0),n=(c.case_comments||[]).filter(m=>m.user_id!==me.id&&new Date(m.created_at)>s).length;return n+(c.user_id!==me.id&&!s&&!n?1:0)};
+const bc=async()=>{let n=0,p=0;
+  if(TABS[prof.role].includes('kasus'))n=ck(await sb.from('cases').select('id,user_id,case_comments(user_id,created_at)')).filter(unread).length;
+  if(ADM.includes(prof.role))p=(await sb.from('profiles').select('id',{count:'exact',head:true}).eq('status','pending')).count||0;
+  return{kasus:n,pengguna:p}};
 const VIEWS={
 async pengguna(){
   const P=ck(await sb.from('profiles').select('*').order('created_at',{ascending:false}));
@@ -120,14 +143,47 @@ async mentoring(){
    ${H.has(s.id)?'<span class="tag ok">Hadir tercatat</span>':`<button class="b" onclick="hadir(${s.id})">Catat kehadiran</button>`}</div>`).join(''):'<div class="card">Belum ada sesi. Hub dapat menjadwalkan sesi pertama.</div>';
   return h;
 },
+async beranda(){
+  const sp=prof.role==='spoke',H=isH(),hasK=TABS[prof.role].includes('kasus');
+  const S=ck(await sb.from('sessions').select('*').gte('waktu',new Date().toISOString()).order('waktu').limit(1));
+  const C=hasK?ck(await sb.from('cases').select('id,user_id,status,case_comments(user_id,created_at)')):[];
+  const n=x=>C.filter(c=>c.status===x).length,k=(a,b,c)=>`<div class="card"><span class="mut">${a}</span><b>${b}</b><span class="mut">${c}</span></div>`;
+  const kp=sp?k('Kasus saya',C.length,'diajukan ke spesialis')+k('Menunggu respons',n('baru'),'belum dibalas')+k('Balasan baru',C.filter(unread).length,'belum Anda baca'):H?k('Perlu direspons',n('baru'),'kasus baru dari FKTP')+k('Sedang dibahas',n('dibahas'),'diskusi berjalan')+k('Selesai',n('selesai'),'kasus tuntas'):'';
+  const cta=sp?`<button class="b r" onclick="go('kasusBaru')">+ Ajukan kasus pasien</button>`:H?`<button class="b r" onclick="flt='baru';go('kasus')">Lihat kasus menunggu respons</button>`:`<button class="b r" onclick="go('skrining')">Input data skrining</button>`;
+  const st=hasK?[['Ajukan','Dokter FKTP mengisi kasus pasien memakai kode/inisial, tanpa nama lengkap atau NIK.'],['Dibalas','Dokter spesialis (Hub) menerima kasus dan membalas di kolom diskusi.'],['Diskusi','FKTP dan Hub berbalas pesan sampai rencana tata laksana jelas.'],['Selesai','Kasus ditandai selesai atau dibahas di sesi telementoring.']]:[['Skrining','Ukur tekanan darah dan tanyakan pola makan di komunitas.'],['Input','Masukkan data pada menu Skrining Komunitas.'],['Terkumpul','Data otomatis masuk ke dashboard.'],['Kebijakan','Data jadi dasar usulan kebijakan hulu.']];
+  return PH(`Halo, ${esc(prof.nama)}`,`${ROLE[prof.role]}${prof.faskes?' · '+esc(prof.faskes):''}`,cta)
+  +(kp?`<div class="kpi">${kp}</div>`:'')
+  +`<div class="card"><h3>Sesi telementoring berikutnya</h3>${S[0]?`<p>${esc(S[0].judul)}<br><span class="mut">${fmt(S[0].waktu)} · ${S[0].skp} SKP</span></p>${/^https?:\/\//.test(S[0].link||'')?`<a href="${esc(S[0].link)}" target="_blank" rel="noopener"><button class="b g">Gabung sesi</button></a>`:''}`:'<p class="mut">Belum ada sesi terjadwal.</p>'}</div>`
+  +`<div class="card"><h3 style="margin-bottom:12px">Alur kerja</h3><div class="steps">${st.map((x,i)=>`<div><i>${i+1}</i><b>${x[0]}</b>${x[1]}</div>`).join('')}</div></div>`;
+},
 async kasus(){
-  const C=ck(await sb.from('cases').select('*,profiles(nama,faskes),case_comments(*,profiles(nama,role))').order('created_at',{ascending:false}));
-  let h='<h2>Studi Kasus PRB</h2>';
-  if(prof.role==='spoke')h+=`<div class="card"><h3>Ajukan kasus (tanpa identitas pasien)</h3><label>Judul kasus</label><input id="kj"><div class="row"><div><label>Usia</label><input id="ku" type="number"></div><div><label>Diagnosis</label><input id="kd" placeholder="mis. PJK stabil, 3VD"></div></div><label>Ringkasan klinis</label><textarea id="kr"></textarea><label>Kendala yang dihadapi</label><input id="kk" placeholder="mis. ketersediaan statin, ragu titrasi"><label><input type="checkbox" id="ko" style="width:auto"> Kasus ini cenderung dirujuk berulang (over-referral)</label><br><button class="b" onclick="addCase()">Kirim ke Hub</button></div>`;
-  return h+(C.length?C.map(c=>`<div class="card"><h3>${esc(c.judul)}</h3><div class="mut">${esc(c.profiles?.nama)} · ${esc(c.profiles?.faskes)} · ${fmt(c.created_at)} ${c.over_referral?'<span class="tag w">over-referral</span>':''}</div>
-   <p><b>${esc(c.diagnosis)}</b>${c.usia?`, ${c.usia} th`:''}<br>${esc(c.ringkasan)}</p>${c.kendala?`<p class="mut">Kendala: ${esc(c.kendala)}</p>`:''}
-   ${(c.case_comments||[]).sort((a,b)=>a.id-b.id).map(m=>`<div class="cm ${m.profiles?.role}"><b>${esc(m.profiles?.nama)}</b> <span class="mut">${fmt(m.created_at)}</span><br>${esc(m.isi)}</div>`).join('')}
-   ${['hub','spoke',...ADM].includes(prof.role)?`<input id="cm${c.id}" placeholder="Tulis masukan atau pertanyaan"><button class="b g" onclick="addComment(${c.id})">Kirim</button>`:''}</div>`).join(''):'<div class="card">Belum ada kasus.</div>');
+  const C=ck(await sb.from('cases').select('*,profiles(nama,faskes),case_comments(user_id,created_at)').order('created_at',{ascending:false}));
+  const f=[['semua','Semua'],['baru','Menunggu respons'],['dibahas','Sedang dibahas'],['selesai','Selesai']],L=C.filter(c=>flt==='semua'||c.status===flt),sp=prof.role==='spoke';
+  return PH('Kasus & Diskusi',sp?'Kasus pasien Anda dan balasan dari spesialis.':'Kasus dari dokter FKTP yang butuh masukan.',sp?`<button class="b r" onclick="go('kasusBaru')">+ Ajukan kasus</button>`:'')
+  +`<div class="chips">${f.map(([k,l])=>`<button class="${flt===k?'on':''}" onclick="flt='${k}';go('kasus')">${l} (${k==='semua'?C.length:C.filter(c=>c.status===k).length})</button>`).join('')}</div>`
+  +(L.length?L.map(c=>{const u=unread(c),s=ST[c.status]||ST.baru;return `<div class="card case ${c.urgensi==='segera'?'urg':''}" role="button" tabindex="0" onclick="openCase(${c.id})" onkeydown="if(event.key==='Enter')openCase(${c.id})"><div class="ct"><h3>${esc(c.judul)}</h3><span class="tag ${s[1]}">${s[0]}</span>${c.urgensi==='segera'?'<span class="tag w">Segera</span>':''}${u?`<span class="bd">${u} baru</span>`:''}</div><div class="mut">Pasien ${esc(c.kode_pasien||'-')}${c.usia?` · ${c.usia} th`:''}${c.jk?` · ${esc(c.jk)}`:''} · ${esc(c.diagnosis)}</div><div class="mut">${esc(c.profiles?.nama)} · ${esc(c.profiles?.faskes)} · ${fmt(c.created_at)} · ${(c.case_comments||[]).length} balasan</div></div>`}).join(''):`<div class="card empty">${C.length?'Tidak ada kasus pada filter ini.':sp?'Belum ada kasus. Mulai dengan tombol <b>+ Ajukan kasus</b>.':'Belum ada kasus masuk.'}</div>`);
+},
+async kasusBaru(){
+  return `<button class="b g" onclick="go('kasus')">← Kembali</button>`+PH('Ajukan kasus pasien','Isi ringkas dan jelas agar spesialis mudah merespons.')
+  +`<div class="card"><div class="note">Privasi: pakai kode atau inisial pasien (mis. "Tn. S, 62"). Jangan tulis nama lengkap, NIK, atau nomor BPJS. Kondisi gawat darurat tidak menunggu balasan aplikasi: rujuk atau hubungi IGD segera.</div>
+  <label>Judul kasus</label><input id="kj" placeholder="mis. Nyeri dada berulang pada PJK stabil">
+  <div class="row"><div><label>Kode / inisial pasien</label><input id="kc"></div><div><label>Usia</label><input id="ku" type="number"></div><div><label>Jenis kelamin</label><select id="kg"><option>Laki-laki</option><option>Perempuan</option></select></div><div><label>TD terakhir</label><input id="kt" placeholder="mis. 150/90"></div></div>
+  <label>Diagnosis</label><input id="kd"><label>Ringkasan klinis (keluhan, pemeriksaan, terapi saat ini)</label><textarea id="kr"></textarea>
+  <label>Pertanyaan untuk spesialis</label><textarea id="kq" placeholder="mis. Apakah dosis perlu dinaikkan atau perlu dirujuk?"></textarea>
+  <label>Kendala di FKTP (opsional)</label><input id="kk" placeholder="mis. statin tidak tersedia, ragu titrasi">
+  <div class="row"><div><label>Urgensi</label><select id="ks"><option value="rutin">Rutin</option><option value="segera">Segera (butuh jawaban cepat)</option></select></div></div>
+  <label class="chk"><input type="checkbox" id="ko"> Pasien cenderung dirujuk berulang (over-referral)</label><br><button class="b r" onclick="addCase()">Kirim ke spesialis</button></div>`;
+},
+async kasusDetail(){
+  const c=ck(await sb.from('cases').select('*,profiles(nama,faskes),case_comments(*,profiles(nama,role))').eq('id',cur).single());
+  LS.s('s'+c.id,Date.now());
+  const H=isH(),own=c.user_id===me.id,s=ST[c.status]||ST.baru,M=(c.case_comments||[]).sort((a,b)=>a.id-b.id);
+  const f=(a,b)=>b?`<div><span class="mut">${a}</span><br>${esc(b)}</div>`:'';
+  const ctl=H?`<select id="cs" style="width:auto;margin:0 8px 0 0">${Object.keys(ST).map(k=>`<option value="${k}" ${k===c.status?'selected':''}>${ST[k][0]}</option>`).join('')}</select><button class="b g" onclick="setStatus(${c.id},$('cs').value)">Ubah status</button>`:own&&c.status!=='selesai'?`<button class="b g" onclick="setStatus(${c.id},'selesai')">Tandai selesai</button>`:'';
+  return `<button class="b g" onclick="go('kasus')">← Semua kasus</button><div class="ph"><div><h1>${esc(c.judul)}</h1><p class="mut">Diajukan ${esc(c.profiles?.nama)} · ${esc(c.profiles?.faskes)} · ${fmt(c.created_at)}</p></div><div><span class="tag ${s[1]}">${s[0]}</span>${c.urgensi==='segera'?' <span class="tag w">Segera</span>':''}</div></div>
+  <div class="card"><div class="grid">${f('Pasien',[c.kode_pasien,c.usia&&c.usia+' th',c.jk].filter(Boolean).join(' · '))}${f('Diagnosis',c.diagnosis)}${f('TD terakhir',c.td)}${f('Kendala',c.kendala)}</div>${f('Ringkasan klinis',c.ringkasan)}${c.pertanyaan?`<div class="q"><b>Pertanyaan untuk spesialis</b><br>${esc(c.pertanyaan)}</div>`:''}${ctl?`<div style="margin-top:12px">${ctl}</div>`:''}</div>
+  <h3>Diskusi (${M.length})</h3><div class="thread">${M.map(m=>`<div class="bub ${m.user_id===me.id?'me':''}"><div class="mut"><b>${esc(m.profiles?.nama)}</b> · ${ROLE[m.profiles?.role]||''} · ${fmt(m.created_at)}</div>${esc(m.isi).replace(/\n/g,'<br>')}</div>`).join('')||`<div class="card empty">Belum ada balasan. ${H?'Berikan masukan pertama Anda.':'Spesialis akan membalas di sini.'}</div>`}</div>
+  ${['hub','spoke',...ADM].includes(prof.role)?`<div class="card"><label>${H?'Balasan / masukan Anda':'Tambah informasi atau balas'}</label><textarea id="cm" placeholder="Tulis di sini…"></textarea><button class="b" onclick="addComment(${c.id})">Kirim balasan</button></div>`:''}`;
 },
 async algoritma(){
   const D=[['Titrasi antihipertensi kombinasi',['Konfirmasi diagnosis dan kepatuhan minum obat; ukur TD dengan benar.','Mulai ACEi/ARB atau CCB; naikkan dosis bertahap tiap 2–4 minggu.','Belum terkontrol: kombinasikan ACEi/ARB + CCB, lalu tambah tiazid.','Cek kreatinin dan kalium 1–2 minggu setelah memulai atau menaikkan ACEi/ARB.','Rujuk bila TD resisten, ada kerusakan organ target, atau gangguan ginjal bermakna.']],
@@ -168,8 +224,14 @@ async dashboard(){
 
 const addSession=async()=>{if(!v('sj')||!v('sw'))return alert('Isi judul dan waktu.');done(await sb.from('sessions').insert({judul:v('sj'),waktu:new Date(v('sw')).toISOString(),link:v('sl'),skp:+v('sk')||0,topik:v('st')}))};
 const hadir=async id=>done(await sb.from('attendance').insert({session_id:id}));
-const addCase=async()=>{if(!v('kj'))return alert('Isi judul kasus.');done(await sb.from('cases').insert({judul:v('kj'),usia:+v('ku')||null,diagnosis:v('kd'),ringkasan:v('kr'),kendala:v('kk'),over_referral:$('ko').checked}))};
-const addComment=async id=>{if(!v('cm'+id))return;done(await sb.from('case_comments').insert({case_id:id,isi:v('cm'+id)}))};
+const addCase=async()=>{if(!v('kj')||!v('kd')||!v('kr'))return alert('Isi judul, diagnosis, dan ringkasan klinis.');
+  const r=await sb.from('cases').insert({judul:v('kj'),kode_pasien:v('kc'),usia:+v('ku')||null,jk:v('kg'),td:v('kt'),diagnosis:v('kd'),ringkasan:v('kr'),pertanyaan:v('kq'),kendala:v('kk'),urgensi:v('ks'),over_referral:$('ko').checked,status:'baru'}).select().single();
+  if(r.error)return alert(r.error.message);openCase(r.data.id)};
+const openCase=id=>{cur=id;go('kasusDetail')};
+const addComment=async id=>{const t=$('cm').value.trim();if(!t)return alert('Tulis balasan dulu.');
+  const r=await sb.from('case_comments').insert({case_id:id,isi:t});if(r.error)return alert(r.error.message);
+  if(isH())await sb.from('cases').update({status:'dibahas'}).eq('id',id).eq('status','baru');go('kasusDetail')};
+const setStatus=async(id,st)=>done(await sb.from('cases').update({status:st}).eq('id',id),'kasusDetail');
 const addScreen=async()=>{if(!v('gs')||!v('gd'))return alert('Isi tekanan darah.');done(await sb.from('screenings').insert({wilayah:v('gw'),usia:+v('gu')||null,sistol:+v('gs'),diastol:+v('gd'),merokok:$('gm').checked,gula:v('gg'),garam:v('gh'),patuh_obat:v('gp')}))};
 const setUser=async(id,st)=>{const el=$('r'+id),u={status:st};if(el)u.role=el.value;done(await sb.from('profiles').update(u).eq('id',id))};
 boot();
