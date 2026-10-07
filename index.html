@@ -651,16 +651,18 @@ async mentoring(){
   const[rs,ra]=await Promise.all([sb.from('sessions').select('*').order('waktu',{ascending:false}),sb.from('attendance').select('session_id').eq('user_id',me.id)]);
   const S=ck(rs),H=new Set(ck(ra).map(x=>x.session_id));
   const tot=S.filter(s=>H.has(s.id)).reduce((a,s)=>a+Number(s.skp||0),0),now=Date.now();
-  const up=S.filter(s=>new Date(s.waktu)>=now).reverse(),past=S.filter(s=>new Date(s.waktu)<now);
-  const sc=(s,p)=>`<article class="card sess ${p?'past':''}"><div class="sh">${dblk(s.waktu)}<div style="min-width:0;flex:1"><h3>${esc(s.judul)}</h3><div class="meta" style="margin-top:4px"><span>${I('clock')}${jam(s.waktu)}</span><span>${I('award')}${s.skp} SKP</span></div></div></div>
+  const endOf=s=>new Date(s.waktu).getTime()+(+s.durasi||60)*60000,fin=s=>!!s.selesai_at||endOf(s)<=now,live=s=>new Date(s.waktu).getTime()<=now&&!fin(s);
+  const up=S.filter(s=>!fin(s)).reverse(),past=S.filter(s=>fin(s));
+  const sc=(s,p)=>`<article class="card sess ${p?'past':''}"><div class="sh">${dblk(s.waktu)}<div style="min-width:0;flex:1"><h3>${esc(s.judul)}</h3><div class="meta" style="margin-top:4px"><span>${I('clock')}${jam(s.waktu)}</span><span>${I('award')}${s.skp} SKP</span>${fin(s)?`<span class="tag">${I('check')}Selesai</span>`:live(s)?`<span class="tag ok">${I('video')}Berlangsung</span>`:''}</div></div></div>
    ${s.topik?`<p class="tp">${esc(s.topik)}</p>`:''}
-   <div class="acts">${s.link&&/^https?:\/\//.test(s.link)?`<a class="btn sm ghost" href="${esc(s.link)}" target="_blank" rel="noopener">${I(/meet\.google\.com/.test(s.link)?'video':'external-link')}${/meet\.google\.com/.test(s.link)?'Buka Google Meet':'Gabung sesi'}</a>`:''}${H.has(s.id)?`<span class="tag ok" style="align-self:center">${I('check')}Hadir tercatat</span>`:`<button class="btn sm" onclick="hadir(${s.id})">${I('check-circle')}Catat kehadiran</button>`}</div></article>`;
+   <div class="acts">${isH()&&!fin(s)?`<button class="btn sm ghost" onclick="endSession(${s.id})">${I('check-circle')}Tandai selesai</button>`:''}${s.link&&/^https?:\/\//.test(s.link)?(fin(s)?`<button class="btn sm ghost" disabled>${I('video')}Sesi selesai</button>`:`<a class="btn sm ghost" href="${esc(s.link)}" target="_blank" rel="noopener">${I(/meet\.google\.com/.test(s.link)?'video':'external-link')}${live(s)?'Gabung sekarang':/meet\.google\.com/.test(s.link)?'Buka Google Meet':'Gabung sesi'}</a>`):''}${H.has(s.id)?`<span class="tag ok" style="align-self:center">${I('check')}Hadir tercatat</span>`:`<button class="btn sm" onclick="hadir(${s.id})">${I('check-circle')}Catat kehadiran</button>`}</div></article>`;
   let h=`<div class="skp"><span class="ti warn">${I('award')}</span><div><b>${tot}</b> <span class="mut" style="font-weight:700">SKP</span><small>terkumpul dari ${H.size} sesi yang Anda hadiri</small></div></div>`;
   if(isH())h+=`<details class="card fold"><summary><span class="ti pri">${I('plus-circle')}</span>Jadwalkan sesi baru<span class="chev">${I('chevron-right')}</span></summary><div class="dbody">
    ${F('sj','Judul',{req:1,ph:'mis. Gagal jantung di layanan primer'})}${F('sw','Waktu',{t:'datetime-local',req:1})}
    ${gcfg()?`<label class="sw" style="margin-bottom:10px"><input type="checkbox" id="sg" checked onchange="gToggle()"><span class="trk"></span><span><b>Buat link Google Meet otomatis</b><small>Jadwal masuk ke Google Calendar Anda sebagai host</small></span></label>
-   <div id="gbox"><div class="note" style="margin-bottom:12px">${I('video')}<span style="flex:1">Google Calendar akan membuat tautan Meet saat sesi disimpan. <span id="gst" class="tag ${gOK()?'ok':'w'}">${gOK()?'Akun Google terhubung':'Belum terhubung'}</span></span><button type="button" class="btn sm ghost" onclick="gConnect()">Hubungkan</button></div>${F('sm','Durasi (menit)',{t:'number',at:'min="15" step="15" value="60" inputmode="numeric"'})}</div>`:''}
+   <div id="gbox"><div class="note" style="margin-bottom:12px">${I('video')}<span style="flex:1">Google Calendar akan membuat tautan Meet saat sesi disimpan. <span id="gst" class="tag ${gOK()?'ok':'w'}">${gOK()?'Akun Google terhubung':'Belum terhubung'}</span></span><button type="button" class="btn sm ghost" onclick="gConnect()">Hubungkan</button></div></div>`:''}
    <div id="slw" ${gcfg()?'hidden':''}>${F('sl','Tautan Zoom / Meet',{ic:'video',opt:1,ph:'https://',t:'url',at:'inputmode="url" autocapitalize="none"'})}</div>
+   ${F('sm','Durasi (menit)',{t:'number',at:'min="15" step="15" value="60" inputmode="numeric"'})}
    ${F('sk','Jumlah SKP',{t:'number',at:'step="0.5" value="1" inputmode="decimal"'})}
    ${F('st','Topik / studi kasus',{opt:1,ta:1,rows:2})}
    <button class="btn block" onclick="addSession()">${I('check')}Simpan sesi</button></div></details>`;
@@ -739,18 +741,26 @@ const addSession=async()=>{
   const auto=gcfg()&&$('sg')&&$('sg').checked;let link=v('sl');
   const btn=document.querySelector('[onclick="addSession()"]');
   savingSes=true;if(btn)btn.disabled=true;
+  const menit=Math.max(15,+v('sm')||60);
   try{
     if(auto){
-      const menit=Math.max(15,+v('sm')||60);
       toast('Membuat link Google Meet…');
       link=await gMeet({judul:v('sj'),topik:v('st'),skp:+v('sk')||0,mulai,menit});
     }
-    const r=await sb.from('sessions').insert({judul:v('sj'),waktu:mulai.toISOString(),link,skp:+v('sk')||0,topik:v('st')});
+    const row={judul:v('sj'),waktu:mulai.toISOString(),link,skp:+v('sk')||0,topik:v('st'),durasi:menit};
+    let r=await sb.from('sessions').insert(row);
+    if(r.error&&/durasi/i.test(r.error.message||'')){delete row.durasi;r=await sb.from('sessions').insert(row)}
     if(r.error)throw r.error;
     inv();toast(auto?'Sesi tersimpan dengan link Google Meet':'Sesi tersimpan','ok');go(tab);
   }catch(e){toast(e.message||'Gagal menyimpan sesi','err')}
   finally{savingSes=false;if(btn)btn.disabled=false}
 };
+const endSession=async id=>{
+  if(!confirm('Tandai sesi ini selesai? Tombol Google Meet akan dinonaktifkan untuk semua peserta.'))return;
+  const r=await sb.from('sessions').update({selesai_at:new Date().toISOString()}).eq('id',id).select('id');
+  if(r.error)return toast(/selesai_at/i.test(r.error.message||'')?'Kolom selesai_at belum dibuat di Supabase.':r.error.message,'err');
+  if(!r.data||!r.data.length)return toast('Tidak punya izin mengubah sesi (cek kebijakan RLS di Supabase).','err');
+  inv();toast('Sesi ditandai selesai','ok');go(tab)};
 const hadir=async id=>done(await sb.from('attendance').insert({session_id:id}),null,'Kehadiran tercatat');
 const addCase=async()=>{if(!v('kj')||!v('kd')||!v('kr'))return toast('Isi judul, diagnosis, dan ringkasan klinis.','err');
   const r=await sb.from('cases').insert({judul:v('kj'),kode_pasien:v('kc'),usia:+v('ku')||null,jk:v('kg'),td:v('kt'),diagnosis:v('kd'),ringkasan:v('kr'),pertanyaan:v('kq'),kendala:v('kk'),urgensi:v('ks'),over_referral:$('ko').checked,status:'baru'}).select().single();
