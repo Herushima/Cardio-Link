@@ -11,6 +11,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="preconnect" href="https://zstmdhbnpfoyzdufeppn.supabase.co" crossorigin><link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
 :root{
   --bg:#f7f9fc;--card:#fff;--ink:#0d1b2a;--mut:#5f6f82;--line:#e5eaf1;
@@ -653,11 +654,13 @@ async mentoring(){
   const up=S.filter(s=>new Date(s.waktu)>=now).reverse(),past=S.filter(s=>new Date(s.waktu)<now);
   const sc=(s,p)=>`<article class="card sess ${p?'past':''}"><div class="sh">${dblk(s.waktu)}<div style="min-width:0;flex:1"><h3>${esc(s.judul)}</h3><div class="meta" style="margin-top:4px"><span>${I('clock')}${jam(s.waktu)}</span><span>${I('award')}${s.skp} SKP</span></div></div></div>
    ${s.topik?`<p class="tp">${esc(s.topik)}</p>`:''}
-   <div class="acts">${s.link&&/^https?:\/\//.test(s.link)?`<a class="btn sm ghost" href="${esc(s.link)}" target="_blank" rel="noopener">${I('external-link')}Gabung sesi</a>`:''}${H.has(s.id)?`<span class="tag ok" style="align-self:center">${I('check')}Hadir tercatat</span>`:`<button class="btn sm" onclick="hadir(${s.id})">${I('check-circle')}Catat kehadiran</button>`}</div></article>`;
+   <div class="acts">${s.link&&/^https?:\/\//.test(s.link)?`<a class="btn sm ghost" href="${esc(s.link)}" target="_blank" rel="noopener">${I(/meet\.google\.com/.test(s.link)?'video':'external-link')}${/meet\.google\.com/.test(s.link)?'Buka Google Meet':'Gabung sesi'}</a>`:''}${H.has(s.id)?`<span class="tag ok" style="align-self:center">${I('check')}Hadir tercatat</span>`:`<button class="btn sm" onclick="hadir(${s.id})">${I('check-circle')}Catat kehadiran</button>`}</div></article>`;
   let h=`<div class="skp"><span class="ti warn">${I('award')}</span><div><b>${tot}</b> <span class="mut" style="font-weight:700">SKP</span><small>terkumpul dari ${H.size} sesi yang Anda hadiri</small></div></div>`;
   if(isH())h+=`<details class="card fold"><summary><span class="ti pri">${I('plus-circle')}</span>Jadwalkan sesi baru<span class="chev">${I('chevron-right')}</span></summary><div class="dbody">
    ${F('sj','Judul',{req:1,ph:'mis. Gagal jantung di layanan primer'})}${F('sw','Waktu',{t:'datetime-local',req:1})}
-   ${F('sl','Tautan Zoom / Meet',{ic:'video',opt:1,ph:'https://',t:'url',at:'inputmode="url" autocapitalize="none"'})}
+   ${gcfg()?`<label class="sw" style="margin-bottom:10px"><input type="checkbox" id="sg" checked onchange="gToggle()"><span class="trk"></span><span><b>Buat link Google Meet otomatis</b><small>Jadwal masuk ke Google Calendar Anda sebagai host</small></span></label>
+   <div id="gbox"><div class="note" style="margin-bottom:12px">${I('video')}<span style="flex:1">Google Calendar akan membuat tautan Meet saat sesi disimpan. <span id="gst" class="tag ${gOK()?'ok':'w'}">${gOK()?'Akun Google terhubung':'Belum terhubung'}</span></span><button type="button" class="btn sm ghost" onclick="gConnect()">Hubungkan</button></div>${F('sm','Durasi (menit)',{t:'number',at:'min="15" step="15" value="60" inputmode="numeric"'})}</div>`:''}
+   <div id="slw" ${gcfg()?'hidden':''}>${F('sl','Tautan Zoom / Meet',{ic:'video',opt:1,ph:'https://',t:'url',at:'inputmode="url" autocapitalize="none"'})}</div>
    ${F('sk','Jumlah SKP',{t:'number',at:'step="0.5" value="1" inputmode="decimal"'})}
    ${F('st','Topik / studi kasus',{opt:1,ta:1,rows:2})}
    <button class="btn block" onclick="addSession()">${I('check')}Simpan sesi</button></div></details>`;
@@ -691,8 +694,63 @@ async pengguna(){
   +`<div class="sec">${I('users')}<h2>Semua pengguna</h2></div>`+rest.map(row).join('');
 }};
 
+/* ===== Google Meet (Google Calendar API) =====
+   Isi GOOGLE_CLIENT_ID dengan OAuth Client ID (Web application) dari Google Cloud Console.
+   Kosongkan bila fitur ini belum dipakai: form otomatis kembali ke tautan manual. */
+const GOOGLE_CLIENT_ID='186871307760-gfn0emiejsqnh3hmr8dvucfhg75lbjcn.apps.googleusercontent.com';
+const GSCOPE='https://www.googleapis.com/auth/calendar.events';
+const gcfg=()=>!!GOOGLE_CLIENT_ID;
+let gTok=null,gExp=0,gCli=null;
+const gOK=()=>!!gTok&&Date.now()<gExp-60000;
+function gMark(){const el=$('gst');if(!el)return;el.textContent=gOK()?'Akun Google terhubung':'Belum terhubung';el.className='tag '+(gOK()?'ok':'w')}
+function gToken(){return new Promise((res,rej)=>{
+  if(gOK())return res(gTok);
+  if(!window.google||!google.accounts||!google.accounts.oauth2)return rej(new Error('Layanan Google belum termuat. Periksa koneksi internet lalu coba lagi.'));
+  if(!gCli)gCli=google.accounts.oauth2.initTokenClient({client_id:GOOGLE_CLIENT_ID,scope:GSCOPE,callback:()=>{}});
+  gCli.callback=r=>{
+    if(r.error)return rej(new Error(r.error==='access_denied'||r.error==='popup_closed'?'Izin Google dibatalkan.':'Gagal login Google: '+(r.error_description||r.error)));
+    gTok=r.access_token;gExp=Date.now()+(+r.expires_in||3600)*1000;LS.s('gconn','1');gMark();res(gTok)};
+  gCli.error_callback=e=>rej(new Error(e&&e.type==='popup_failed_to_open'?'Popup login diblokir browser. Izinkan popup untuk situs ini.':'Login Google dibatalkan.'));
+  gCli.requestAccessToken({prompt:LS.g('gconn')?'':'consent'})})}
+async function gConnect(){try{await gToken();toast('Google terhubung','ok')}catch(e){toast(e.message,'err')}}
+const gwait=ms=>new Promise(r=>setTimeout(r,ms));
+async function gMeet({judul,topik,skp,mulai,menit}){
+  const tok=await gToken(),end=new Date(mulai.getTime()+menit*60000);
+  const body={summary:judul,description:(topik?topik+'\n\n':'')+'Sesi Telementoring Cardio Link · '+skp+' SKP',
+    start:{dateTime:mulai.toISOString(),timeZone:'Asia/Jakarta'},end:{dateTime:end.toISOString(),timeZone:'Asia/Jakarta'},
+    reminders:{useDefault:false,overrides:[{method:'popup',minutes:30},{method:'popup',minutes:10}]},
+    conferenceData:{createRequest:{requestId:(crypto.randomUUID?crypto.randomUUID():String(Date.now())+Math.random()),conferenceSolutionKey:{type:'hangoutsMeet'}}}};
+  const H={Authorization:'Bearer '+tok,'Content-Type':'application/json'};
+  const r=await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events?conferenceDataVersion=1&sendUpdates=none',{method:'POST',headers:H,body:JSON.stringify(body)});
+  const j=await r.json().catch(()=>({}));
+  if(!r.ok){if(r.status===401){gTok=null;gMark()}throw new Error((j.error&&j.error.message)||'Google Calendar menolak permintaan ('+r.status+')')}
+  let ev=j;
+  for(let i=0;i<4&&!ev.hangoutLink;i++){await gwait(900);const g=await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events/'+encodeURIComponent(j.id)+'?conferenceDataVersion=1',{headers:H});if(g.ok)ev=await g.json()}
+  if(!ev.hangoutLink)throw new Error('Link Google Meet belum terbentuk. Coba lagi beberapa saat.');
+  return ev.hangoutLink}
+function gToggle(){const on=$('sg').checked;$('gbox').hidden=!on;$('slw').hidden=on}
+
 /* ===== Aksi ===== */
-const addSession=async()=>{if(!v('sj')||!v('sw'))return toast('Isi judul dan waktu.','err');done(await sb.from('sessions').insert({judul:v('sj'),waktu:new Date(v('sw')).toISOString(),link:v('sl'),skp:+v('sk')||0,topik:v('st')}),null,'Sesi tersimpan')};
+let savingSes=false;
+const addSession=async()=>{
+  if(savingSes)return;
+  if(!v('sj')||!v('sw'))return toast('Isi judul dan waktu.','err');
+  const mulai=new Date(v('sw'));if(isNaN(mulai))return toast('Waktu tidak valid.','err');
+  const auto=gcfg()&&$('sg')&&$('sg').checked;let link=v('sl');
+  const btn=document.querySelector('[onclick="addSession()"]');
+  savingSes=true;if(btn)btn.disabled=true;
+  try{
+    if(auto){
+      const menit=Math.max(15,+v('sm')||60);
+      toast('Membuat link Google Meet…');
+      link=await gMeet({judul:v('sj'),topik:v('st'),skp:+v('sk')||0,mulai,menit});
+    }
+    const r=await sb.from('sessions').insert({judul:v('sj'),waktu:mulai.toISOString(),link,skp:+v('sk')||0,topik:v('st')});
+    if(r.error)throw r.error;
+    inv();toast(auto?'Sesi tersimpan dengan link Google Meet':'Sesi tersimpan','ok');go(tab);
+  }catch(e){toast(e.message||'Gagal menyimpan sesi','err')}
+  finally{savingSes=false;if(btn)btn.disabled=false}
+};
 const hadir=async id=>done(await sb.from('attendance').insert({session_id:id}),null,'Kehadiran tercatat');
 const addCase=async()=>{if(!v('kj')||!v('kd')||!v('kr'))return toast('Isi judul, diagnosis, dan ringkasan klinis.','err');
   const r=await sb.from('cases').insert({judul:v('kj'),kode_pasien:v('kc'),usia:+v('ku')||null,jk:v('kg'),td:v('kt'),diagnosis:v('kd'),ringkasan:v('kr'),pertanyaan:v('kq'),kendala:v('kk'),urgensi:v('ks'),over_referral:$('ko').checked,status:'baru'}).select().single();
