@@ -325,6 +325,9 @@ details.alg:nth-of-type(5) .ti{background:linear-gradient(135deg,#3ddc9f,#0f9d6b
 .rfb .rfi{width:54px;height:54px;border-radius:50%;background:var(--red-t);color:var(--red);display:grid;place-items:center;margin:0 auto 10px}.rfb .rfi .ic{width:28px;height:28px}
 .rfb h2{margin:0 0 8px;text-align:center;font-size:19px;color:var(--red)}.rfb p{margin:0 0 10px;font-size:14px;line-height:1.45}.rfb .rfs{background:var(--red-t);border-radius:12px;padding:10px 12px;font-weight:700}.rfb .btn{margin-top:8px}
 .ref{border-left:4px solid var(--pri)}.ref.dar{border-left-color:var(--red)}.ref h3{margin:0 0 6px;font-size:15px}.ref .rt{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:8px}.ref .kv2{margin-top:6px}.ref .q{margin-top:10px}
+.cred{display:flex;flex-direction:column;align-items:center;gap:2px;text-align:center;margin:22px 0 4px;padding-top:14px;border-top:1px solid var(--line);font-size:12px;color:var(--mut);line-height:1.5}
+.cred b{color:var(--ink);font-size:12.5px}.cred a{color:var(--pri);text-decoration:none;font-weight:600}.cred a:hover{text-decoration:underline}
+.authcard+.foot+.cred,.foot+.cred{margin:0 16px calc(24px + env(safe-area-inset-bottom));border-top:0;padding-top:0}
 </style></head>
 <body><div id="app"></div>
 <div class="scrim" id="scrim" onclick="closeSheet()"></div>
@@ -404,6 +407,7 @@ const P={
 'refresh-cw':'<path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/>'
 };
 const I=(n,c='')=>`<svg class="ic ${c}" viewBox="0 0 24 24" aria-hidden="true">${P[n]||''}</svg>`;
+const credit=()=>`<footer class="cred"><b>Software Engineering by Herushima.Dev</b><span>Klinik Medika Utama Kediri</span><a href="mailto:herushima06@gmail.com">herushima06@gmail.com</a></footer>`;
 const ECG='<svg class="ecg" viewBox="0 0 400 80" aria-hidden="true"><path pathLength="1" d="M0 46H70C76 46 78 38 84 38C90 38 92 46 98 46H118L124 52L134 8L144 70L150 46H178C186 46 190 32 200 32C210 32 214 46 222 46H290C296 46 298 38 304 38C310 38 312 46 318 46H336L342 52L352 14L362 66L368 46H400"/></svg>';
 const logo=()=>`<span class="lg"><span class="lm">${I('heart-pulse')}</span><span class="lw">Cardio<i>Link</i></span></span>`;
 
@@ -470,7 +474,7 @@ function authView(){
       <p class="mut sm" style="text-align:center;margin-top:12px">Pendaftaran perlu disetujui Super Admin sebelum Anda bisa masuk.</p>
     </div>
   </div>
-  <p class="foot">Project ECHO PERKI Jawa Timur</p></div>`;
+  <p class="foot">Project ECHO PERKI Jawa Timur</p>${credit()}</div>`;
 }
 function authTab(k){const a=k==='in';$('p-in').hidden=!a;$('p-up').hidden=a;$('at-in').classList.toggle('on',a);$('at-up').classList.toggle('on',!a)}
 async function signIn(){
@@ -508,7 +512,7 @@ function openProfile(){
   $('sheet').innerHTML=`<div class="grab"></div><div class="prof"><span class="av lg av${avc(prof.nama)}">${esc(ini(prof.nama))}</span><div><b>${esc(prof.nama)}</b><span class="mut">@${esc(prof.username||'')}</span></div></div>
   <div class="kv">${I(ROLE_IC[prof.role])}<div><span>Peran</span><b>${ROLE[prof.role]}</b></div></div>
   ${prof.faskes?`<div class="kv">${I('hospital')}<div><span>Faskes</span><b>${esc(prof.faskes)}</b></div></div>`:''}
-  <button class="btn ghost block" onclick="out()">${I('log-out')}Keluar dari akun</button>`;
+  <button class="btn ghost block" onclick="out()">${I('log-out')}Keluar dari akun</button>${credit()}`;
   document.body.classList.add('sheet-open');
 }
 const closeSheet=()=>document.body.classList.remove('sheet-open');
@@ -588,14 +592,14 @@ async beranda(){
    :`<button class="btn light" onclick="go('mentoring')">${I('video')}Lihat sesi telementoring</button>`;
   const hr=new Date().getHours(),sal=hr<11?'Selamat pagi':hr<15?'Selamat siang':hr<18?'Selamat sore':'Selamat malam';
   const nx=S[0],ok=nx&&/^https?:\/\//.test(nx.link||'');
-  const st=hasK?[['Ajukan','Dokter FKTP mengisi kasus pasien memakai kode atau inisial, tanpa nama lengkap atau NIK.'],['Dibalas','Dokter spesialis (Hub) menerima kasus dan membalas di kolom diskusi.'],['Diskusi','FKTP dan Hub berbalas pesan sampai rencana tata laksana jelas.'],['Selesai','Kasus ditandai selesai atau dibahas di sesi telementoring.']]
+  const st=hasK?[['Ajukan','Dokter FKTP mengisi kasus pasien beserta data klinis dan lampiran, dengan persetujuan pasien.'],['Dibalas','Dokter spesialis (Hub) menerima kasus dan membalas di kolom diskusi.'],['Diskusi','FKTP dan Hub berbalas pesan sampai rencana tata laksana jelas.'],['Selesai','Kasus ditandai selesai atau dibahas di sesi telementoring.']]
    :[['Skrining','Ukur tekanan darah dan tanyakan pola makan di komunitas.'],['Input','Masukkan data pada menu Skrining.'],['Terkumpul','Data otomatis masuk ke dashboard.'],['Kebijakan','Data jadi dasar usulan kebijakan hulu.']];
   if(D)loadDash();
   return `<section class="hero"><span class="chip">${I(ROLE_IC[r])}${ROLE[r]}</span><p class="gr">${sal},</p><h1>${esc(prof.nama)}</h1>${prof.faskes?`<p class="hf">${I('hospital')}${esc(prof.faskes)}</p>`:''}<div class="hcta">${cta}</div></section>`
   +(tiles?`<div class="tiles">${tiles}</div>`:'')
   +`<div class="card"><div class="next">${nx?dblk(nx.waktu):`<span class="dt">${I('calendar')}</span>`}<div style="flex:1;min-width:0"><span class="mut sm">Sesi telementoring berikutnya</span>${nx?`<h3>${esc(nx.judul)}</h3><div class="meta" style="margin-top:6px"><span>${I('clock')}${hari(nx.waktu)}, ${jam(nx.waktu)}</span><span>${I('award')}${nx.skp} SKP</span></div>${ok?`<a class="btn sm" href="${esc(nx.link)}" target="_blank" rel="noopener">${I('external-link')}Gabung sesi</a>`:''}`:`<h3>Belum ada sesi terjadwal</h3>${isH()?`<button class="btn sm ghost" style="margin-top:10px" onclick="go('mentoring')">${I('plus')}Jadwalkan sesi</button>`:''}`}</div></div></div>`
   +(D?`<div id="dash">${CACHE.dash||'<div class="skel"></div><div class="skel"></div>'}</div>`:'')
-  +`<details class="card fold" style="margin-top:12px" ${D?'':'open'}><summary><span class="ti pri">${I('activity')}</span>Cara kerja Cardio Link<span class="chev">${I('chevron-right')}</span></summary><div class="dbody"><ol class="tl">${st.map(x=>`<li><b>${x[0]}</b>${x[1]}</li>`).join('')}</ol></div></details>`;
+  +`<details class="card fold" style="margin-top:12px" ${D?'':'open'}><summary><span class="ti pri">${I('activity')}</span>Cara kerja Cardio Link<span class="chev">${I('chevron-right')}</span></summary><div class="dbody"><ol class="tl">${st.map(x=>`<li><b>${x[0]}</b>${x[1]}</li>`).join('')}</ol></div></details>`+credit();
 },
 async skrining(){
   const R=ck(await sb.from('screenings').select('*').eq('user_id',me.id).order('created_at',{ascending:false}).limit(30));
