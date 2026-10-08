@@ -305,6 +305,26 @@ details.alg:nth-of-type(3) .ti{background:linear-gradient(135deg,#b49bff,#6d4fe0
 details.alg:nth-of-type(4) .ti{background:linear-gradient(135deg,#fcc531,#e8830c)}
 details.alg:nth-of-type(5) .ti{background:linear-gradient(135deg,#3ddc9f,#0f9d6b)}
 .kv .ic{color:#7c5cf0}
+
+/* ===== Kasus: lampiran, red flag, rujukan ===== */
+.ckl{display:grid;gap:8px;margin-bottom:10px}.ckl label{display:flex;gap:12px;align-items:flex-start;padding:12px 14px;border:1px solid var(--line);border-radius:14px;background:var(--card);cursor:pointer;font-size:14px;line-height:1.4}
+.ckl input{flex:none;width:20px;height:20px;margin-top:1px;accent-color:var(--pri)}
+.ckl.rf label:has(input:checked){border-color:var(--red);background:var(--red-t)}.ckl.rf input{accent-color:var(--red)}
+.kfl{display:grid;gap:8px;margin:10px 0}.kfl:empty{display:none}
+.kfi{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--line);border-radius:14px;background:var(--card)}.kfi>.ic{flex:none;color:var(--pri)}
+.kfi .nm{flex:1;min-width:0}.kfi .nm b{display:block;font-size:13.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.kfi .nm small{color:var(--mut);font-size:12px}
+.kfi select{border:1px solid var(--line);border-radius:10px;padding:6px 8px;font:inherit;font-size:13px;background:var(--card);color:var(--ink);max-width:120px}
+.kfi button{flex:none;border:0;background:transparent;color:var(--mut);padding:6px;cursor:pointer}.kpick{cursor:pointer}
+.lamp{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:10px;margin-top:10px}
+.lamp a{display:block;text-decoration:none;color:var(--ink);border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--bg)}
+.lamp img{display:block;width:100%;height:84px;object-fit:cover}.lamp .fi{height:84px;display:grid;place-items:center;color:var(--pri)}
+.lamp small{display:block;padding:6px 8px;font-size:11.5px;font-weight:700;color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rfbn{display:flex;gap:10px;align-items:flex-start;background:var(--red-t);color:var(--red);border-radius:14px;padding:12px 14px;margin:0 0 12px;font-size:13.5px}.rfbn b{display:block}.rfbn ul{margin:4px 0 0 18px;padding:0;color:var(--ink)}
+.rfm{position:fixed;inset:0;z-index:100;background:rgb(10 20 30/.55);display:grid;place-items:center;padding:20px}
+.rfb{background:var(--card);border-radius:22px;padding:22px 20px;max-width:380px;width:100%;box-shadow:0 20px 50px rgb(0 0 0/.35)}
+.rfb .rfi{width:54px;height:54px;border-radius:50%;background:var(--red-t);color:var(--red);display:grid;place-items:center;margin:0 auto 10px}.rfb .rfi .ic{width:28px;height:28px}
+.rfb h2{margin:0 0 8px;text-align:center;font-size:19px;color:var(--red)}.rfb p{margin:0 0 10px;font-size:14px;line-height:1.45}.rfb .rfs{background:var(--red-t);border-radius:12px;padding:10px 12px;font-weight:700}.rfb .btn{margin-top:8px}
+.ref{border-left:4px solid var(--pri)}.ref.dar{border-left-color:var(--red)}.ref h3{margin:0 0 6px;font-size:15px}.ref .rt{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:8px}.ref .kv2{margin-top:6px}.ref .q{margin-top:10px}
 </style></head>
 <body><div id="app"></div>
 <div class="scrim" id="scrim" onclick="closeSheet()"></div>
@@ -330,6 +350,11 @@ const avc=n=>[...String(n||'')].reduce((a,c)=>a+c.charCodeAt(0),0)%5;
 
 /* ===== Ikon (garis, gaya Lucide) ===== */
 const P={
+'paperclip':'<path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"/>',
+'file-text':'<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/>',
+'image':'<rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/>',
+'phone':'<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.12.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.58 2.81.7A2 2 0 0 1 22 16.92z"/>',
+'calendar-check':'<path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="m9 16 2 2 4-4"/>',
 'home':'<path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/>',
 'stethoscope':'<path d="M11 2v2"/><path d="M5 2v2"/><path d="M5 3H4a2 2 0 0 0-2 2v4a6 6 0 0 0 12 0V5a2 2 0 0 0-2-2h-1"/><path d="M8 15a6 6 0 0 0 12 0v-3"/><circle cx="20" cy="10" r="2"/>',
 'video':'<path d="m22 8-6 4 6 4V8Z"/><rect width="14" height="12" x="2" y="6" rx="2"/>',
@@ -391,8 +416,8 @@ const TABS={superadmin:ADMT,koordinator:ADMT,hub:['beranda','kasus','mentoring',
 const DASH=['superadmin','koordinator','hub','stakeholder'];   /* peran yang melihat Dashboard JATRA di Beranda */
 const SHORT={beranda:'Beranda',skrining:'Skrining',kasus:'Kasus',mentoring:'Mentoring',algoritma:'Panduan',pengguna:'Pengguna'};
 const TICON={beranda:'home',skrining:'clipboard-list',kasus:'stethoscope',mentoring:'video',algoritma:'book-open',pengguna:'users'};
-const TTL={beranda:'Beranda',pengguna:'Pengguna & Akses',kasus:'Kasus & Diskusi',kasusBaru:'Ajukan kasus',kasusDetail:'Detail kasus',mentoring:'Telementoring & SKP',algoritma:'Panduan Klinis',skrining:'Skrining Komunitas'};
-const SUB={kasusBaru:'kasus',kasusDetail:'kasus'};
+const TTL={beranda:'Beranda',pengguna:'Pengguna & Akses',kasus:'Kasus & Diskusi',kasusBaru:'Ajukan kasus',rujukBaru:'Rujukan klinik',kasusDetail:'Detail kasus',mentoring:'Telementoring & SKP',algoritma:'Panduan Klinis',skrining:'Skrining Komunitas'};
+const SUB={kasusBaru:'kasus',kasusDetail:'kasus',rujukBaru:'kasus'};
 const ADM=['superadmin','koordinator'],EM=u=>u.toLowerCase()+'@cardiolink.app',UN=/^[a-z0-9._-]{3,30}$/i;
 const ST={baru:['Menunggu respons','w'],dibahas:['Sedang dibahas',''],selesai:['Selesai','ok']};
 const STS={baru:'Menunggu',dibahas:'Dibahas',selesai:'Selesai'};
@@ -476,7 +501,7 @@ async function shell(){
 }
 function renderBar(t){
   const sub=!!SUB[t];
-  $('bar').innerHTML=(sub?`<button class="ib" aria-label="Kembali" onclick="go('kasus')">${I('arrow-left')}</button><h1 class="bt">${TTL[t]}</h1>`:t==='beranda'?logo():`<h1 class="bt">${TTL[t]}</h1>`)
+  $('bar').innerHTML=(sub?`<button class="ib" aria-label="Kembali" onclick="go('${t==='rujukBaru'?'kasusDetail':'kasus'}')">${I('arrow-left')}</button><h1 class="bt">${TTL[t]}</h1>`:t==='beranda'?logo():`<h1 class="bt">${TTL[t]}</h1>`)
    +`<span class="sp"></span>`+(sub?'':`<button class="avbtn" aria-label="Akun saya" onclick="openProfile()">${esc(ini(prof.nama))}</button>`);
 }
 function openProfile(){
@@ -489,7 +514,7 @@ function openProfile(){
 const closeSheet=()=>document.body.classList.remove('sheet-open');
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeSheet()});
 
-const NOC=['skrining','kasusBaru'];
+const NOC=['skrining','kasusBaru','rujukBaru'];
 const busy=()=>{const a=document.activeElement,w=$('view');return !!(w&&((a&&w.contains(a)&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName))||w.querySelector('details[open]')))};
 const inv=()=>{CACHE={};bT=0};
 async function go(t){
@@ -592,26 +617,31 @@ async skrining(){
   +(R.length?R.map(r=>{const hi=r.sistol>=140||r.diastol>=90;return `<div class="card rd"><span class="ti ${hi?'red':'ok'}">${I(hi?'alert-triangle':'check-circle')}</span><div class="mid"><div class="bpv">${r.sistol}/${r.diastol}<small>mmHg</small></div><div class="meta"><span>${I('map-pin')}${esc(r.wilayah||'-')}</span><span>${I('user')}${r.usia??'-'} th</span></div></div><div style="text-align:right"><span class="tag ${hi?'r':'ok'}">${hi?'Tinggi':'Normal'}</span><div class="mut sm" style="margin-top:4px">${rel(r.created_at)}</div></div></div>`}).join(''):empty('clipboard-list','Belum ada data','Data skrining yang Anda simpan akan muncul di sini.'));
 },
 async kasus(){
-  const C=ck(await sb.from('cases').select('*,profiles(nama,faskes),case_comments(user_id,created_at)').order('created_at',{ascending:false}));
-  const f=[['semua','Semua'],['baru','Menunggu'],['dibahas','Dibahas'],['selesai','Selesai']],L=C.filter(c=>flt==='semua'||c.status===flt),sp=prof.role==='spoke',can=['spoke',...ADM].includes(prof.role);
-  const card=c=>{const u=unread(c),s=ST[c.status]||ST.baru,urg=c.urgensi==='segera',ps=[c.kode_pasien||'-',c.usia?c.usia+' th':'',c.jk||''].filter(Boolean).join(', ');
+  const C=ck(await sb.from('cases').select('*,profiles(nama,faskes),case_comments(user_id,created_at),referrals(status,jenis)').order('created_at',{ascending:false}));
+  const f=[['semua','Semua'],['baru','Menunggu'],['dibahas','Dibahas'],['selesai','Selesai'],['rujukan','Rujukan']],L=C.filter(c=>flt==='semua'||(flt==='rujukan'?(c.referrals||[]).length>0:c.status===flt)),sp=prof.role==='spoke',can=['spoke',...ADM].includes(prof.role);
+  const card=c=>{const u=unread(c),s=ST[c.status]||ST.baru,urg=c.urgensi==='segera',ps=[c.kode_pasien||'-',c.usia?c.usia+' th':'',c.jk||''].filter(Boolean).join(', ');const rr=c.referrals||[],ra=rr.some(r=>['diajukan','dijadwalkan'].includes(r.status)),rd=rr.some(r=>r.status==='selesai');
     return `<article class="card case${urg?' urg':''}" role="button" tabindex="0" onclick="openCase(${c.id})" onkeydown="if(event.key==='Enter')openCase(${c.id})">
-    <div class="ct"><span class="tag ${s[1]}">${s[0]}</span>${urg?`<span class="tag r">${I('siren')}Segera</span>`:''}${u?`<span class="bd">${u} baru</span>`:''}<span class="sp"></span><span class="mut sm">${rel(c.created_at)}</span></div>
+    <div class="ct"><span class="tag ${s[1]}">${s[0]}</span>${urg?`<span class="tag r">${I('siren')}Segera</span>`:''}${Array.isArray(c.redflag)&&c.redflag.length?`<span class="tag r">${I('alert-triangle')}Red flag</span>`:''}${ra?`<span class="tag w">${I('hospital')}Rujukan</span>`:rd?`<span class="tag ok">${I('check-circle')}Hasil tersedia</span>`:''}${u?`<span class="bd">${u} baru</span>`:''}<span class="sp"></span><span class="mut sm">${rel(c.created_at)}</span></div>
     <h3>${esc(c.judul)}</h3><p class="dx">${esc(c.diagnosis)}</p>
     <div class="meta"><span>${I('user')}Pasien ${esc(ps)}</span></div>
     <div class="cf"><span class="av sm av${avc(c.profiles?.nama)}">${esc(ini(c.profiles?.nama))}</span><span class="cfn"><b>${esc(c.profiles?.nama)}</b><small>${esc(c.profiles?.faskes)}</small></span><span class="rep">${I('message-circle','sm')}${(c.case_comments||[]).length}</span></div></article>`};
   return `<p class="lead">${sp?'Kasus pasien Anda dan balasan dari spesialis.':'Kasus dari dokter FKTP yang butuh masukan.'}</p>
-  <div class="chips" role="tablist">${f.map(([k,l])=>`<button class="${flt===k?'on':''}" onclick="flt='${k}';go('kasus')">${l}<i>${k==='semua'?C.length:C.filter(c=>c.status===k).length}</i></button>`).join('')}</div>`
+  <div class="chips" role="tablist">${f.map(([k,l])=>`<button class="${flt===k?'on':''}" onclick="flt='${k}';go('kasus')">${l}<i>${k==='semua'?C.length:k==='rujukan'?C.filter(c=>(c.referrals||[]).length).length:C.filter(c=>c.status===k).length}</i></button>`).join('')}</div>`
   +(L.length?L.map(card).join(''):empty('stethoscope',C.length?'Tidak ada kasus':'Belum ada kasus',C.length?'Tidak ada kasus pada filter ini.':can?'Mulai dengan mengajukan kasus pertama Anda.':'Kasus dari dokter FKTP akan muncul di sini.',can&&!C.length?`<button class="btn" onclick="go('kasusBaru')">${I('plus')}Ajukan kasus</button>`:''))
   +(can?`<div class="fabw"><button class="fab" onclick="go('kasusBaru')">${I('plus')}Ajukan kasus</button></div>`:'')+'<div class="spacer"></div>';
 },
 async kasusBaru(){
-  return `<div class="note">${I('info')}<span><b>Privasi pasien.</b> Pakai kode atau inisial (mis. "Tn. S, 62"). Jangan tulis nama lengkap, NIK, atau nomor BPJS. Kondisi gawat darurat tidak menunggu balasan aplikasi: rujuk atau hubungi IGD segera.</span></div>
+  KFS.case=[];
+  return `<div class="note">${I('info')}<span><b>Data pasien bersifat rahasia.</b> Isi hanya yang diperlukan dan pastikan pasien sudah menyetujui datanya dibagikan ke spesialis dan ${KLINIK}. Kondisi gawat darurat tidak menunggu balasan aplikasi: rujuk atau hubungi IGD segera.</span></div>
   <div class="card">
    <div class="grp">${I('user','sm')}Data pasien</div>
-   <div class="two">${F('kc','Kode / inisial',{ph:'mis. Tn. S'})}${F('ku','Usia',{t:'number',ph:'tahun',at:'inputmode="numeric"'})}</div>
+   ${F('kc','Nama pasien',{req:1,ph:'Nama lengkap pasien',at:'autocomplete="off"'})}
+   <div class="two">${F('ku','Usia',{t:'number',ph:'tahun',at:'inputmode="numeric"'})}${F('kh','No HP',{opt:1,t:'tel',ph:'08xxxxxxxxxx',at:'inputmode="tel" autocomplete="off"'})}</div>
    <div class="f"><span class="lbl">Jenis kelamin</span>${seg('kg',['Laki-laki','Perempuan'],'Laki-laki')}</div>
+   ${F('ka','Alamat',{opt:1,ta:1,rows:2,ph:'Alamat tempat tinggal pasien'})}
+   ${F('ki','No BPJS / NIK',{opt:1,ph:'13 digit BPJS atau 16 digit NIK',at:'inputmode="numeric" autocomplete="off"'})}
    ${F('kt','TD terakhir',{ph:'mis. 150/90'})}
+   ${F('kl','Kontrol terakhir di '+KLINIK,{opt:1,t:'date'})}
   </div>
   <div class="card">
    <div class="grp">${I('stethoscope','sm')}Kondisi klinis</div>
@@ -622,30 +652,75 @@ async kasusBaru(){
    ${F('kk','Kendala di FKTP',{opt:1,ph:'mis. statin tidak tersedia, ragu titrasi'})}
   </div>
   <div class="card">
+   <div class="grp">${I('alert-triangle','sm')}Tanda bahaya (red flag)</div>
+   <p class="mut sm" style="margin:-4px 0 10px">Centang bila pasien saat ini mengalami salah satu kondisi berikut.</p>
+   <div class="ckl rf">${RF.map(([k,t])=>`<label><input type="checkbox" class="rfc" value="${k}" onchange="rfTick(this)"><span>${t}</span></label>`).join('')}</div>
+  </div>
+  <div class="card">
+   <div class="grp">${I('paperclip','sm')}Lampiran pemeriksaan <span class="opt">opsional</span></div>
+   <p class="mut sm" style="margin:-4px 0 4px">Foto EKG, hasil lab, foto thorax, atau hasil lain (JPG/PNG/PDF, maksimal ${MAXF} berkas).</p>
+   <div id="kfl-case" class="kfl"></div>
+   <label class="btn ghost block kpick">${I('plus')}Tambah berkas<input type="file" accept="image/*,application/pdf" multiple hidden onchange="kfAdd(this,'case')"></label>
+  </div>
+  <div class="card">
    <div class="grp">${I('siren','sm')}Prioritas</div>
    <div class="f"><span class="lbl">Urgensi</span>${seg('ks',[['rutin','Rutin'],['segera','Segera']],'rutin')}<p class="mut sm" style="margin-top:6px">Pilih Segera bila butuh jawaban cepat.</p></div>
    <label class="sw"><input type="checkbox" id="ko"><span class="trk"></span><span><b>Berisiko over-referral</b><small>Pasien cenderung dirujuk berulang</small></span></label>
+  </div>
+  <div class="card">
+   <div class="ckl" style="margin:0"><label><input type="checkbox" id="kp"><span><b>Persetujuan pasien.</b> Pasien telah menyetujui data dan lampirannya dibagikan kepada spesialis dan ${KLINIK} untuk keperluan konsultasi atau rujukan. <b class="rq">*</b></span></label></div>
   </div>
   <div class="spacer"></div>
   <div class="bar"><button class="btn red block" onclick="addCase()">${I('send')}Kirim ke spesialis</button></div>`;
 },
 async kasusDetail(){
-  const c=ck(await sb.from('cases').select('*,profiles(nama,faskes),case_comments(*,profiles(nama,role))').eq('id',cur).single());
+  const c=ck(await sb.from('cases').select('*,profiles(nama,faskes),case_comments(*,profiles(nama,role)),referrals(*)').eq('id',cur).single());
   LS.s('s'+c.id,Date.now());bT=0;
   const H=isH(),own=c.user_id===me.id,s=ST[c.status]||ST.baru,M=(c.case_comments||[]).sort((a,b)=>a.id-b.id),canC=['hub','spoke',...ADM].includes(prof.role);
+  const R=(c.referrals||[]).sort((a,b)=>b.id-a.id),RL=Array.isArray(c.redflag)?c.redflag:[],canR=own||ADM.includes(prof.role),act=R.some(r=>['diajukan','dijadwalkan'].includes(r.status)),firstSched=(R.find(r=>r.status==='dijadwalkan')||{}).id;
+  const U=await signAll([c.lampiran||[],...R.map(r=>r.hasil_files||[])]);
+  const tgl=d=>new Date(d).toLocaleDateString('id-ID',{dateStyle:'long'});
   const kv=(a,b,x='')=>b?`<div class="${x}"><small>${a}</small><b>${esc(b)}</b></div>`:'';
   const ctl=H?`<div class="seg" style="margin-top:14px">${Object.keys(ST).map(k=>`<button type="button" class="${k===c.status?'on':''}" onclick="setStatus(${c.id},'${k}')">${STS[k]}</button>`).join('')}</div>`
     :own&&c.status!=='selesai'?`<button class="btn ghost block" style="margin-top:14px" onclick="setStatus(${c.id},'selesai')">${I('check-circle')}Tandai selesai</button>`:'';
+  const refCard=r=>{const st=RS[r.status]||RS.diajukan,dar=r.jenis==='darurat',ps=(r.pemeriksaan||[]).map(k=>PL[k]||k);let cc='';
+    if(H&&r.status==='diajukan')cc=F('rs'+r.id,'Jadwal di '+KLINIK,{t:'datetime-local'})+`<button class="btn sm block" onclick="refSched(${r.id})">${I('calendar-check')}Jadwalkan</button>`;
+    else if(H&&r.status==='dijadwalkan'){cc=r.id===firstSched?F('rh'+r.id,'Hasil pemeriksaan',{ta:1,rows:3,ph:'Ringkasan hasil'})+F('rl'+r.id,'Instruksi tindak lanjut untuk FKTP',{ta:1,rows:3})+`<div id="kfl-hasil" class="kfl">${kfHTML('hasil')}</div><label class="btn ghost block kpick">${I('paperclip')}Lampirkan berkas hasil<input type="file" accept="image/*,application/pdf" multiple hidden onchange="kfAdd(this,'hasil')"></label><button class="btn block" style="margin-top:10px" onclick="refDone(${r.id},${c.id},'${c.user_id}')">${I('send')}Kirim hasil ke FKTP</button>`:''}
+    const can=(H&&['diajukan','dijadwalkan'].includes(r.status))||(own&&r.status==='diajukan');
+    return `<div class="card ref${dar?' dar':''}"><div class="rt"><span class="tag ${dar?'r':''}">${I(dar?'siren':'stethoscope')}${dar?'Darurat / segera':'Pemeriksaan lanjutan'}</span><span class="tag ${st[1]}">${st[0]}</span><span class="sp"></span><span class="mut sm">${rel(r.created_at)}</span></div>
+    ${ps.length?`<h3>${ps.map(esc).join(', ')}</h3>`:''}
+    <div class="kv2">${kv('Tanggal diharapkan',r.tgl_diharapkan&&tgl(r.tgl_diharapkan))}${kv('Jadwal di '+KLINIK,r.jadwal_klinik&&fmt(r.jadwal_klinik))}${kv('Catatan dari FKTP',r.catatan,'full')}</div>
+    ${r.status==='selesai'?`<div class="q">${I('file-text')}<div><small>Hasil pemeriksaan</small><p class="pl">${esc(r.hasil||'Lihat lampiran.')}</p></div></div>${r.tindak_lanjut?`<div class="q">${I('clipboard-list')}<div><small>Instruksi tindak lanjut</small><p class="pl">${esc(r.tindak_lanjut)}</p></div></div>`:''}${lampHTML(r.hasil_files,U)}`:''}
+    ${cc?`<div style="margin-top:12px">${cc}</div>`:''}${can?`<button class="btn danger sm block" style="margin-top:10px" onclick="refCancel(${r.id})">Batalkan rujukan</button>`:''}</div>`};
   return `<div class="ct"><span class="tag ${s[1]}">${s[0]}</span>${c.urgensi==='segera'?`<span class="tag r">${I('siren')}Segera</span>`:''}${H&&c.over_referral?`<span class="tag w">Over-referral</span>`:''}</div>
   <h1 class="dh">${esc(c.judul)}</h1>
   <div class="who"><span class="av av${avc(c.profiles?.nama)}">${esc(ini(c.profiles?.nama))}</span><div><b>${esc(c.profiles?.nama)}</b><span>${esc(c.profiles?.faskes)}, ${rel(c.created_at)}</span></div></div>
-  <div class="card"><div class="kv2">${kv('Pasien',[c.kode_pasien,c.usia&&c.usia+' th',c.jk].filter(Boolean).join(', '))}${c.td?`<div><small>TD terakhir</small><b class="td">${esc(c.td)}</b></div>`:''}${kv('Diagnosis',c.diagnosis,'full')}${kv('Kendala di FKTP',c.kendala,'full')}</div>
+  ${RL.length?`<div class="rfbn">${I('siren')}<div><b>Tanda bahaya (red flag) dilaporkan</b><ul>${RL.map(k=>`<li>${esc(RFM[k]||k)}</li>`).join('')}</ul></div></div>${canR&&!act?`<button class="btn red block" style="margin-bottom:12px" onclick="rujukJenis='darurat';go('rujukBaru')">${I('siren')}Rujuk darurat sekarang</button>`:''}`:''}
+  <div class="card"><div class="kv2">${kv('Pasien',[c.kode_pasien,c.usia&&c.usia+' th',c.jk].filter(Boolean).join(', '))}${c.td?`<div><small>TD terakhir</small><b class="td">${esc(c.td)}</b></div>`:''}${kv('Alamat',c.alamat,'full')}${kv('No HP',c.no_hp)}${kv('No BPJS / NIK',c.no_id)}${kv('Kontrol terakhir di '+KLINIK,c.kontrol_terakhir&&tgl(c.kontrol_terakhir),'full')}${kv('Diagnosis',c.diagnosis,'full')}${kv('Kendala di FKTP',c.kendala,'full')}</div>
    ${c.ringkasan?`<small class="mut" style="font-weight:700">Ringkasan klinis</small><p class="pl" style="margin-top:2px">${esc(c.ringkasan)}</p>`:''}
-   ${c.pertanyaan?`<div class="q">${I('message-square')}<div><small>Pertanyaan untuk spesialis</small><p class="pl">${esc(c.pertanyaan)}</p></div></div>`:''}${ctl}</div>
+   ${c.pertanyaan?`<div class="q">${I('message-square')}<div><small>Pertanyaan untuk spesialis</small><p class="pl">${esc(c.pertanyaan)}</p></div></div>`:''}
+   ${(c.lampiran||[]).length?`<small class="mut" style="font-weight:700;display:block;margin-top:12px">Lampiran pemeriksaan</small>${lampHTML(c.lampiran,U)}`:''}${ctl}</div>
+  <div class="sec">${I('hospital')}<h2>Rujukan ke ${KLINIK}</h2>${R.length?`<span class="tag">${R.length}</span>`:''}</div>
+  ${R.map(refCard).join('')}${canR?`<button class="btn ghost block" style="margin-bottom:12px" onclick="rujukJenis=null;go('rujukBaru')">${I('plus')}Rujuk ke ${KLINIK}</button>`:(R.length?'':`<p class="mut sm">Belum ada rujukan untuk kasus ini.</p>`)}
   <div class="sec">${I('message-circle')}<h2>Diskusi</h2><span class="tag">${M.length}</span></div>
   <div class="thread">${M.map(m=>{const mine=m.user_id===me.id;return `<div class="cm ${mine?'me':''}">${mine?'':`<span class="av sm av${avc(m.profiles?.nama)}">${esc(ini(m.profiles?.nama))}</span>`}<div class="bub"><div class="bh"><b>${mine?'Anda':esc(m.profiles?.nama)}</b><span>${ROLE[m.profiles?.role]||''}</span></div><p class="pl">${esc(m.isi)}</p><time>${rel(m.created_at)}</time></div></div>`}).join('')||empty('message-circle','Belum ada balasan',H?'Berikan masukan pertama Anda.':'Spesialis akan membalas di sini.')}</div>
   <div class="spacer"></div>
   ${canC?`<div class="composer"><textarea id="cm" rows="1" placeholder="${H?'Tulis masukan Anda…':'Tambah informasi atau balas…'}" oninput="grow(this)" aria-label="Balasan"></textarea><button class="send" aria-label="Kirim balasan" onclick="addComment(${c.id})">${I('send')}</button></div>`:''}`;
+},
+async rujukBaru(){
+  const c=ck(await sb.from('cases').select('id,judul,kode_pasien').eq('id',cur).single()),dar=rujukJenis==='darurat';rujukJenis=null;
+  return `<div class="note">${I('info')}<span>${dar?'<b>Rujukan darurat.</b> Aplikasi tidak menjamin respons seketika. Hubungi klinik lewat telepon dan, bila pasien tidak stabil, segera ke IGD terdekat atau hubungi 119.':'Ajukan jadwal pemeriksaan lanjutan di <b>'+KLINIK+'</b>. Hasil dan instruksi tindak lanjut akan muncul otomatis di kasus ini.'}</span></div>
+  <div class="card"><div class="grp">${I('hospital','sm')}Rujukan untuk</div><b>${esc(c.kode_pasien||'-')}</b><p class="mut sm" style="margin:2px 0 0">${esc(c.judul)}</p></div>
+  <div class="card">
+   <div class="grp">${I('siren','sm')}Jenis rujukan</div>${seg('rj',[['diagnostik','Pemeriksaan lanjutan'],['darurat','Darurat / segera']],dar?'darurat':'diagnostik')}
+   <div class="grp" style="margin-top:16px">${I('stethoscope','sm')}Pemeriksaan yang dibutuhkan</div>
+   <div class="ckl">${PERIKSA.map(([k,l])=>`<label><input type="checkbox" class="rpc" value="${k}"><span>${l}</span></label>`).join('')}</div>
+   ${F('rtgl','Tanggal yang diharapkan',{t:'date',opt:1})}
+   ${F('rcat','Catatan untuk klinik',{ta:1,opt:1,rows:3,ph:'Mis. indikasi pemeriksaan, obat yang sedang dipakai'})}
+  </div>
+  ${KLINIK_TEL?`<a class="btn ghost block" href="tel:+${KLINIK_TEL}" style="margin-bottom:12px">${I('phone')}Hubungi ${KLINIK}</a>`:''}
+  <div class="spacer"></div>
+  <div class="bar"><button class="btn red block" onclick="addReferral()">${I('send')}Kirim rujukan</button></div>`;
 },
 async mentoring(){
   const[rs,ra]=await Promise.all([sb.from('sessions').select('*').order('waktu',{ascending:false}),sb.from('attendance').select('session_id').eq('user_id',me.id)]);
@@ -732,6 +807,96 @@ async function gMeet({judul,topik,skp,mulai,menit}){
   return ev.hangoutLink}
 function gToggle(){const on=$('sg').checked;$('gbox').hidden=!on;$('slw').hidden=on}
 
+/* ===== Rujukan, red flag, lampiran ===== */
+const KLINIK='Klinik Medika Utama';
+const KLINIK_TEL='';   /* isi nomor telepon klinik format internasional tanpa +, mis. '6281234567890'; kosong = tombol telepon disembunyikan */
+const BUCKET='case-files',MAXF=6;
+const PERIKSA=[['treadmill','Treadmill (uji latih jantung)'],['echo','Ekokardiografi (Echo)'],['niva','NIVA'],['abpm','ABPM (pemantauan tekanan darah 24 jam)'],['holter','Holter (EKG 24 jam)']];
+const PL=Object.fromEntries(PERIKSA);
+const RS={diajukan:['Menunggu konfirmasi klinik','w'],dijadwalkan:['Dijadwalkan',''],selesai:['Hasil tersedia','ok'],dibatalkan:['Dibatalkan','']};
+const RF=[['nyeri_dada','Nyeri dada berat yang menetap, muncul saat aktivitas ringan atau saat istirahat'],['sinkop','Pingsan (sinkop)'],['sesak','Sesak napas dengan laju napas >25 x/menit atau SpO₂ <90%'],['iskemia_tungkai','Nyeri kaki yang menetap disertai akral dingin'],['hipotensi','Tekanan darah sistolik <90 mmHg disertai gejala (pusing, lemas, akral dingin)'],['aritmia','Denyut jantung >150 atau <40 x/menit disertai gejala'],['neuro','Kelemahan satu sisi tubuh atau bicara pelo yang muncul mendadak'],['krisis_hipertensi','TD ≥180/120 mmHg disertai nyeri kepala berat, nyeri dada, sesak, atau gangguan neurologis']];
+const RFM=Object.fromEntries(RF);
+const KATS={case:['EKG','Lab','Foto Thorax','Echo','Lainnya'],hasil:['Treadmill','Echo','NIVA','ABPM','Holter','Lainnya']};
+const KFS={case:[],hasil:[]};
+let rujukJenis=null,RFA=[],savingCase=false,savingRef=false;
+const friendly=e=>{const m=(e&&e.message)||String(e);return /schema cache|does not exist|Could not find|relation .* not found/i.test(m)?'Struktur database belum diperbarui. Jalankan SQL migrasi di Supabase. ('+m+')':m};
+
+/* --- pop-up red flag --- */
+function rfClose(){const m=$('rfm');if(m)m.remove()}
+function rfModal(o){rfClose();RFA=o.acts||[];const m=document.createElement('div');m.id='rfm';m.className='rfm';m.setAttribute('role','alertdialog');m.setAttribute('aria-modal','true');
+  m.innerHTML=`<div class="rfb"><div class="rfi">${I('siren')}</div><h2>Tanda bahaya terdeteksi</h2><p class="rfs">${esc(o.txt)}</p><p>${esc(o.q||'Kondisi ini berpotensi mengancam jiwa.')} <b>Jangan menunggu balasan aplikasi.</b> Bila pasien tidak stabil, segera ke IGD terdekat atau hubungi 119.</p>${KLINIK_TEL?`<a class="btn ghost block" href="tel:+${KLINIK_TEL}">${I('phone')}Hubungi ${KLINIK}</a>`:''}${RFA.map((a,i)=>`<button type="button" class="btn ${a.c} block" onclick="rfAct(${i})">${esc(a.l)}</button>`).join('')}</div>`;
+  document.body.appendChild(m);const b=m.querySelector('button');if(b)b.focus()}
+function rfAct(i){const a=RFA[i];rfClose();if(a&&a.f)a.f()}
+const rfTick=cb=>{if(!cb.checked)return;const g=$('ks'),b=g&&g.parentNode.querySelector('[data-v="segera"]');if(b)pick(b);
+  rfModal({txt:RFM[cb.value],q:'Kasus akan ditandai SEGERA dan diarahkan ke rujukan darurat setelah dikirim.',acts:[{l:'Mengerti, lanjut isi kasus',c:'red'}]})};
+const RFKW=/nyeri dada|pingsan|sinkop|syncope|sesak|akral dingin|syok|lumpuh|bicara pelo|kejang|henti jantung|penurunan kesadaran|tidak sadar/gi;
+const rfScan=t=>{const x=t.toLowerCase();RFKW.lastIndex=0;let m;while((m=RFKW.exec(x))){const pre=x.slice(Math.max(0,m.index-16),m.index);if(!/(tidak|tanpa|bukan|disangkal|negatif|tak)\s*(ada\s*|disertai\s*)?$/.test(pre))return true}return false};
+
+/* --- lampiran (Supabase Storage, bucket privat) --- */
+const kfHTML=n=>KFS[n].map((x,i)=>`<div class="kfi">${I(/^image\//.test(x.file.type)?'image':'file-text')}<div class="nm"><b>${esc(x.file.name)}</b><small>${(x.file.size/1048576).toFixed(1)} MB</small></div><select aria-label="Jenis berkas" onchange="KFS['${n}'][${i}].kat=this.value">${KATS[n].map(k=>`<option${k===x.kat?' selected':''}>${k}</option>`).join('')}</select><button type="button" aria-label="Hapus berkas" onclick="KFS['${n}'].splice(${i},1);kfRender('${n}')">${I('x')}</button></div>`).join('');
+const kfRender=n=>{const el=$('kfl-'+n);if(el)el.innerHTML=kfHTML(n)};
+const kfAdd=(inp,n)=>{const L=KFS[n];for(const f of inp.files){if(L.length>=MAXF){toast('Maksimal '+MAXF+' berkas.','err');break}
+  if(!(/^image\//.test(f.type)||f.type==='application/pdf')){toast(f.name+': hanya foto atau PDF.','err');continue}
+  if(f.size>15*1048576){toast(f.name+': lebih dari 15 MB.','err');continue}
+  L.push({file:f,kat:KATS[n][0]})}inp.value='';kfRender(n)};
+async function kfPrep(f){if(!/^image\//.test(f.type)||f.size<1200000)return f;
+  try{const bm=await createImageBitmap(f),k=Math.min(1,1800/Math.max(bm.width,bm.height)),c=document.createElement('canvas');c.width=Math.round(bm.width*k);c.height=Math.round(bm.height*k);c.getContext('2d').drawImage(bm,0,0,c.width,c.height);
+    const b=await new Promise(r=>c.toBlob(r,'image/jpeg',.82));return b&&b.size<f.size?new File([b],f.name.replace(/\.\w+$/,'')+'.jpg',{type:'image/jpeg'}):f}catch(e){return f}}
+async function kfUpload(L,owner,caseId,folder){const ok=[];let fail=0;
+  for(const [i,x] of L.entries()){try{const f=await kfPrep(x.file),nm=f.name.replace(/[^\w.\-]+/g,'_').slice(-60),path=`${owner}/${caseId}/${folder}/${Date.now()}-${i}-${nm}`;
+    const r=await sb.storage.from(BUCKET).upload(path,f,{contentType:f.type||'application/octet-stream',upsert:false});if(r.error)throw r.error;
+    ok.push({path,name:x.file.name,kat:x.kat,type:f.type,size:f.size})}catch(e){fail++}}
+  return{ok,fail}}
+async function signAll(lists){const ps=[...new Set(lists.flat().filter(Boolean).map(x=>x.path))];if(!ps.length)return{};
+  const r=await sb.storage.from(BUCKET).createSignedUrls(ps,3600),m={};(r.data||[]).forEach(x=>{if(x.signedUrl)m[x.path]=x.signedUrl});return m}
+const lampHTML=(L,U)=>L&&L.length?`<div class="lamp">${L.map(x=>{const u=U[x.path];if(!u)return `<div class="lamp-x mut sm">${esc(x.kat)}: tidak dapat dimuat</div>`;const im=/^image\//.test(x.type||'');
+  return `<a href="${esc(u)}" target="_blank" rel="noopener" title="${esc(x.name)}">${im?`<img src="${esc(u)}" loading="lazy" alt="${esc(x.kat)}">`:`<div class="fi">${I('file-text','lg')}</div>`}<small>${esc(x.kat)}</small></a>`}).join('')}</div>`:'';
+
+/* --- aksi kasus & rujukan --- */
+const addCase=async()=>{
+  if(savingCase)return;
+  if(!v('kc')||!v('kj')||!v('kd')||!v('kr'))return toast('Isi nama pasien, judul, diagnosis, dan ringkasan klinis.','err');
+  const nid=v('ki').replace(/[\s-]/g,''),hp=v('kh').replace(/[\s-]/g,'');
+  if(nid&&!/^\d{13,16}$/.test(nid))return toast('No BPJS/NIK harus 13 sampai 16 digit angka.','err');
+  if(hp&&!/^(\+?62|0)\d{8,13}$/.test(hp))return toast('Nomor HP tidak valid (contoh 081234567890).','err');
+  if(!$('kp').checked)return toast('Centang persetujuan pasien terlebih dahulu.','err');
+  const rf=[...document.querySelectorAll('.rfc:checked')].map(x=>x.value),btn=document.querySelector('[onclick="addCase()"]');
+  savingCase=true;if(btn)btn.disabled=true;
+  try{
+    const r=await sb.from('cases').insert({judul:v('kj'),kode_pasien:v('kc'),usia:+v('ku')||null,jk:v('kg'),td:v('kt'),diagnosis:v('kd'),ringkasan:v('kr'),pertanyaan:v('kq'),kendala:v('kk'),urgensi:rf.length?'segera':v('ks'),over_referral:$('ko').checked,status:'baru',
+      alamat:v('ka')||null,no_hp:hp||null,no_id:nid||null,kontrol_terakhir:v('kl')||null,persetujuan:true,redflag:rf.length?rf:null}).select().single();
+    if(r.error)throw r.error;
+    const id=r.data.id;let note='Kasus terkirim ke spesialis';
+    if(KFS.case.length){toast('Mengunggah lampiran…');const up=await kfUpload(KFS.case,me.id,id,'kasus');
+      if(up.ok.length){const u=await sb.from('cases').update({lampiran:up.ok}).eq('id',id);if(u.error)up.fail+=up.ok.length}
+      if(up.fail)note+=`, ${up.fail} lampiran gagal diunggah`}
+    KFS.case=[];inv();toast(note,'ok');
+    if(rf.length){cur=id;rujukJenis='darurat';return go('rujukBaru')}
+    openCase(id);
+  }catch(e){toast(friendly(e),'err')}
+  finally{savingCase=false;if(btn)btn.disabled=false}
+};
+const openCase=id=>{cur=id;KFS.hasil=[];go('kasusDetail')};
+const addReferral=async()=>{
+  if(savingRef)return;const jenis=v('rj'),pk=[...document.querySelectorAll('.rpc:checked')].map(x=>x.value);
+  if(jenis==='diagnostik'&&!pk.length)return toast('Pilih minimal satu pemeriksaan.','err');
+  savingRef=true;
+  const r=await sb.from('referrals').insert({case_id:cur,user_id:me.id,jenis,pemeriksaan:pk,tgl_diharapkan:v('rtgl')||null,catatan:v('rcat')||null,status:'diajukan'});
+  savingRef=false;if(r.error)return toast(friendly(r.error),'err');
+  if(jenis==='darurat')await sb.from('cases').update({urgensi:'segera'}).eq('id',cur);
+  inv();toast(jenis==='darurat'?'Rujukan darurat terkirim. Hubungi klinik lewat telepon.':'Rujukan terkirim ke '+KLINIK,'ok');openCase(cur)};
+const refUpd=async(id,patch,msg)=>{const r=await sb.from('referrals').update(patch).eq('id',id).select('id');
+  if(r.error)return toast(friendly(r.error),'err');if(!r.data||!r.data.length)return toast('Tidak punya izin mengubah rujukan (cek kebijakan RLS di Supabase).','err');
+  inv();toast(msg,'ok');go('kasusDetail')};
+const refSched=id=>{const t=$('rs'+id).value;if(!t)return toast('Pilih tanggal dan jam jadwal.','err');refUpd(id,{status:'dijadwalkan',jadwal_klinik:new Date(t).toISOString()},'Rujukan dijadwalkan')};
+const refCancel=id=>{if(confirm('Batalkan rujukan ini?'))refUpd(id,{status:'dibatalkan'},'Rujukan dibatalkan')};
+const refDone=async(id,caseId,owner)=>{const h=v('rh'+id),t=v('rl'+id);
+  if(!h&&!t&&!KFS.hasil.length)return toast('Isi hasil, instruksi tindak lanjut, atau lampirkan berkas.','err');
+  toast('Mengirim hasil…');const up=await kfUpload(KFS.hasil,owner,caseId,'hasil');
+  if(KFS.hasil.length&&!up.ok.length)return toast('Semua lampiran gagal diunggah. Coba lagi.','err');
+  KFS.hasil=[];
+  await refUpd(id,{status:'selesai',hasil:h||null,tindak_lanjut:t||null,hasil_files:up.ok.length?up.ok:null,selesai_at:new Date().toISOString()},up.fail?`Hasil terkirim, ${up.fail} lampiran gagal`:'Hasil dikirim ke FKTP')};
+
 /* ===== Aksi ===== */
 let savingSes=false;
 const addSession=async()=>{
@@ -762,13 +927,13 @@ const endSession=async id=>{
   if(!r.data||!r.data.length)return toast('Tidak punya izin mengubah sesi (cek kebijakan RLS di Supabase).','err');
   inv();toast('Sesi ditandai selesai','ok');go(tab)};
 const hadir=async id=>done(await sb.from('attendance').insert({session_id:id}),null,'Kehadiran tercatat');
-const addCase=async()=>{if(!v('kj')||!v('kd')||!v('kr'))return toast('Isi judul, diagnosis, dan ringkasan klinis.','err');
-  const r=await sb.from('cases').insert({judul:v('kj'),kode_pasien:v('kc'),usia:+v('ku')||null,jk:v('kg'),td:v('kt'),diagnosis:v('kd'),ringkasan:v('kr'),pertanyaan:v('kq'),kendala:v('kk'),urgensi:v('ks'),over_referral:$('ko').checked,status:'baru'}).select().single();
-  if(r.error)return toast(r.error.message,'err');inv();toast('Kasus terkirim ke spesialis','ok');openCase(r.data.id)};
-const openCase=id=>{cur=id;go('kasusDetail')};
-const addComment=async id=>{const t=$('cm').value.trim();if(!t)return toast('Tulis balasan dulu.','err');
+
+const addComment=async(id,mode)=>{const t=$('cm').value.trim();if(!t)return toast('Tulis balasan dulu.','err');
+  if(!mode&&prof.role!=='hub'&&rfScan(t))return rfModal({txt:'Pesan Anda menyebut gejala yang bisa berarti gawat darurat.',q:'Apakah pasien saat ini mengalami kegawatan?',acts:[{l:'Ya, rujuk darurat sekarang',c:'red',f:()=>addComment(id,'ref')},{l:'Tidak, kirim pesan saja',c:'ghost',f:()=>addComment(id,'send')}]});
   const r=await sb.from('case_comments').insert({case_id:id,isi:t});if(r.error)return toast(r.error.message,'err');
-  if(isH())await sb.from('cases').update({status:'dibahas'}).eq('id',id).eq('status','baru');inv();endScroll=true;go('kasusDetail')};
+  if(isH())await sb.from('cases').update({status:'dibahas'}).eq('id',id).eq('status','baru');inv();
+  if(mode==='ref'){cur=id;rujukJenis='darurat';return go('rujukBaru')}
+  endScroll=true;go('kasusDetail')};
 const setStatus=async(id,st)=>done(await sb.from('cases').update({status:st}).eq('id',id),'kasusDetail','Status diperbarui');
 const addScreen=async()=>{if(!v('gs')||!v('gd'))return toast('Isi tekanan darah.','err');done(await sb.from('screenings').insert({wilayah:v('gw'),usia:+v('gu')||null,sistol:+v('gs'),diastol:+v('gd'),merokok:$('gm').checked,gula:v('gg'),garam:v('gh'),patuh_obat:v('gp')}),null,'Data skrining tersimpan')};
 const setUser=async(id,st)=>{const el=$('r'+id),u={status:st};if(el)u.role=el.value;done(await sb.from('profiles').update(u).eq('id',id),null,st==='approved'?'Akses disimpan':'Akses dicabut')};
